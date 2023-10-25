@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>typeCircle</title>
+    <script>
+        let imageUrl = "{{ url_for('static', filename='img/manga/03.png') }}";
+        let boxListCircle = "{{ url_for('static', filename='js/template/boxListCircle.handlebars') }}";
+        let boxOptionsFile = "{{ url_for('static', filename='js/template/boxOptionsFile.handlebars') }}";
+        // icon
+        let downloadIcon = "{{ url_for('static', filename='img/icons/baixar.svg') }}";
+        let deleteIcon = "{{ url_for('static', filename='img/icons/excluir.svg') }}";
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font/stylesheet.css') }}">
+    <!-- lib -->
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</head>
+
+<body>
+    <div id="conteinerMain">
+        <div id="menuTools">
+            <div id="select_boxTools" class="boxTools"></div>
+            <div class="boxTools"></div>
+            <div class="boxTools"></div>
+        </div>
+        <div id="middleScreen">
+            <div id="menuInitial">
+                <div class="box_menuInitial no-select">
+                    <div class="rowPagesDraw">
+                        <div class="pageDraw">
+                            <div class="ellipse_pageDraw"></div>
+                        </div>
+                        <div class="pageDraw">
+                            <div class="ellipse_pageDraw"></div>
+                        </div>
+                        <div class="pageDraw">
+                            <div class="ellipse_pageDraw"></div>
+                        </div>
+                    </div>
+                    <h2>Adicionar <span>uma ou multiplas</span> imagens</h2>
+                </div>
+            </div>
+            <canvas id="canvasFile"></canvas>
+        </div>
+        <div id="menuProperties">
+            <div class="hiddenBackgroud">
+                <div id="boxNameProperties" class="no-select">
+                    <div class="boxTools" id="select_boxTools"></div>
+                    <h1>Desenhar circulo com texto</h1>
+                </div>
+            </div>
+
+            <div id="elementsProperties">
+                <div class="hiddenBackgroud">
+                    <div id="drawCircleProperties" class="no-select">
+                        <div id="tabContent">
+                            <div id="selectTab" class="tabElement">
+                                <h2>Lista de circulos</h2>
+                            </div>
+                            <div class="tabElement">
+                                <h2>Importar texto</h2>
+                            </div>
+                        </div>
+                        <div id="contentAndOther">
+                            <div id="content_drawCircleProperties">
+                                <div id="minHeightList">
+                                    <div id="listCircle">
+                                    </div>
+                                </div>
+                                <div id="lineDivisonProperties"></div>
+                                <div id="propertiesTextAndCircle">
+                                    <h2 id="textCountElement">Elemento(s) selecionado(s)</h2>
+                                    <div style="display: none;" id="column_propertiesTextAndCircle">
+                                        <div id="fontText_propertiesTextAndCircle">
+                                            <h2>Propriedade de texto e caixa:</h2>
+                                            <div id="rowFontText_propertiesTextAndCircle">
+                                                <div class="custom-select">
+                                                    <select>
+                                                        <option value="0">Arial</option>
+                                                        <option value="0">Arial</option>
+                                                        <option value="1">Times</option>
+                                                    </select>
+                                                </div>
+                                                <div class="boxInput">
+                                                    <input type="text" placeholder="14">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="styleText_propertiesTextAndCircle">
+                                            <div class="boxRowProperties">
+                                                <div id="selectorColor"></div>
+                                                <input id="input_selectorColor" type="text" placeholder="#00000">
+                                            </div>
+                                            <div class="boxRowProperties">
+                                                <img src="{{ url_for('static', filename='img/icons/lineHeight.svg') }}"
+                                                    alt="">
+                                                <input id="input_lineHeight" type="text" placeholder="Auto">
+                                            </div>
+                                            <!-- <div class="boxRowProperties">
+                                        <img src="assets/img/icons/round-corner.svg" alt="">
+                                        <input id="input_border" type="text" placeholder="Auto">
+                                    </div> -->
+                                        </div>
+                                        <div id="styleTextAling_propertiesTextAndCircle">
+                                            <div id="selectIconBox" class="boxIconProperties">
+                                                <img src="{{ url_for('static', filename='img/icons/alingCenter.svg') }}"
+                                                    alt="">
+                                            </div>
+                                            <div class="boxIconProperties">
+                                                <img src="{{ url_for('static', filename='img/icons/alingLeft.svg') }}"
+                                                    alt="">
+                                            </div>
+                                            <div class="boxIconProperties">
+                                                <img src="{{ url_for('static', filename='img/icons/alingRight.svg') }}"
+                                                    alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="othersTools">
+                                <h2>Outras ferramentas:</h2>
+                                <div class="box_othersTools">
+                                    <h2>Indentificar caixas usando AI</h2>
+                                    <img class="loadgif" src="{{ url_for('static', filename='img/icons/load.gif') }}"
+                                        alt="">
+                                    <img class="finishTask"
+                                        src="{{ url_for('static', filename='img/icons/right.svg') }}" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hiddenBackgroud">
+                    <div id="fileProperties">
+                        <div id="tabContent">
+                            <div id="selectTab" class="tabElement">
+                                <h2>Lista de Arquivos</h2>
+                            </div>
+                            <div class="tabElement">
+                                <h2>Renomeação</h2>
+                            </div>
+                        </div>
+                        <div id="content_fileProperties">
+                            <div id="listFiles">
+                            </div>
+                            <div class="optionsFile no-select">
+                                <div class="boxOptionsFile">
+                                    <h2>Salvar todos</h2>
+                                    <img src="{{ url_for('static', filename='img/icons/salva.svg') }}" alt="">
+                                </div>
+                                <div class="boxOptionsFile">
+                                    <h2>Adicionar images</h2>
+                                    <input type="file" id="fileInputImage" style="display:none;" multiple>
+                                    <img src="{{ url_for('static', filename='img/icons/addimage.svg') }}" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</html>

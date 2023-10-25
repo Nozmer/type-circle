@@ -1,0 +1,723 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+html,
+body,
+#conteinerMain,
+#meuTools,
+#menuProperties {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    background-color: #F8F8F8;
+    overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+p,
+input {
+    margin: 0;
+    font-family: Poppins;
+    line-height: 1.3;
+    color: #454545;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 800;
+}
+
+h2 {
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+h3,
+.custom-select,
+input {
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+}
+
+.custom-select{
+    font-size: 11px;
+}
+
+textarea:focus,
+input:focus {
+    outline: none;
+}
+
+input {
+    border: 0;
+    background: transparent;
+}
+
+canvas {
+    display: none;
+}
+
+.no-select {
+    -webkit-user-select: none;
+    /* Safari */
+    -ms-user-select: none;
+    /* IE 10 and IE 11 */
+    user-select: none;
+    /* Standard syntax */
+}
+
+.custom-select,
+.select-selected {
+    display: flex;
+    box-sizing: border-box;
+    align-items: flex-start;
+    flex: 1 0 0;
+
+    border-radius: 5px;
+    border: 1px solid #C1C1C1;
+
+    background: #EDEDED;
+}
+
+.custom-select {
+    position: relative;
+}
+
+.custom-select select {
+    display: none;
+    /*hide original SELECT element:*/
+}
+
+/*style the arrow inside the select element:*/
+.select-selected:after {
+    position: absolute;
+    content: "";
+    top: 13px;
+    right: 15px;
+    width: 0;
+    height: 0;
+    border: 7px solid transparent;
+    border-color: #C1C1C1 transparent transparent transparent;
+}
+
+/*point the arrow upwards when the select box is open (active):*/
+.select-selected.select-arrow-active:after {
+    border-color: transparent transparent #C1C1C1 transparent;
+    top: 5px;
+}
+
+/*style the items (options), including the selected item:*/
+.select-items div,
+.select-selected {
+    color: #6F6F6F;
+    padding: 8px 16px;
+    border-color: transparent transparent rgba(0, 0, 0, 0) transparent;
+    cursor: pointer;
+    user-select: none;
+}
+
+.select-items div:last-child {
+    border-radius: 0px 0px 10px 10px;
+}
+
+/*style items (options):*/
+.select-items {
+    position: absolute;
+    background-color: #F2F2F2;
+    border: 1px solid #C1C1C1;
+    border-radius: 0px 0px 10px 10px;
+    top: 100%;
+    left: -1px;
+    right: -1px;
+    z-index: 99;
+}
+
+/*hide the items when the select box is closed:*/
+.select-hide {
+    display: none;
+}
+
+.select-items div:hover,
+.same-as-selected {
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: background 0.1s ease;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #9E9E9E;
+    border-radius: 5px;
+    transition: 0.5s background ease;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #848484;
+}
+
+#conteinerMain {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/*menuInitial*/
+#menuInitial {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.box_menuInitial {
+    cursor: pointer;
+    display: flex;
+    width: 380px;
+    padding: 40px 20px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 34px;
+    border-radius: 10px;
+    background: #E7E7E7;
+}
+
+.box_menuInitial h2 {
+    font-size: 18px;
+}
+
+.box_menuInitial h2>span {
+    color: #6CA5FA;
+    text-decoration-line: underline;
+}
+
+.rowPagesDraw {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rowPagesDraw>div {
+    margin-right: -25px;
+    margin-left: -25px;
+}
+
+.pageDraw {
+    display: flex;
+    width: 120px;
+    height: 150px;
+    transform: rotate(10deg);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    border-radius: 5px;
+    border: 2px solid #6CA5FA;
+    background: #F3F3F3;
+    box-shadow: 4px 4px 8px 1px rgba(0, 0, 0, 0.10);
+}
+
+.ellipse_pageDraw {
+    width: 40px;
+    height: 54px;
+    border-radius: 100%;
+    transform: rotate(10deg);
+    background: rgba(108, 165, 250, 0.10);
+    border: 1px solid #6CA5FA;
+}
+
+.hiddenBackgroud {
+    width: 100%;
+    border-radius: 8px;
+    background: #DEDEDE;
+}
+
+.hiddenBackgroud>div:first-child {
+    position: relative;
+    z-index: -1;
+}
+
+#menuTools,
+#menuProperties {
+    background: #E7E7E7;
+}
+
+#menuTools {
+    display: flex;
+    padding: 70px 12px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 14px;
+    align-self: stretch;
+}
+
+.boxTools {
+    cursor: pointer;
+    display: flex;
+    width: 32px;
+    height: 32px;
+    box-sizing: border-box;
+    padding: 8px 8px 9px 9px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    background-color: #F2F2F2;
+    box-shadow: inset 0 0 0 1.5px #C1C1C1;
+    transition: 0.2s background ease;
+}
+
+.boxTools:hover {
+    background: #D8D8D8;
+}
+
+.boxTools#select_boxTools {
+    background: #D8D8D8;
+}
+
+#menuProperties {
+    display: flex;
+    width: 350px;
+    box-sizing: border-box;
+    padding: 40px 25px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    flex-shrink: 0;
+}
+
+#boxNameProperties {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    align-self: stretch;
+}
+
+#boxNameProperties h1 {
+    color: #7B7B7B;
+}
+
+#elementsProperties {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    flex: 1 0 0;
+    align-self: stretch;
+}
+
+#drawCircleProperties {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1 0 0;
+    align-self: stretch;
+}
+
+#tabContent {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+}
+
+.tabElement {
+    cursor: pointer;
+    display: flex;
+    padding: 6px 10px;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 10px;
+    flex: 1 0 0;
+    border-radius: 5px 5px 0px 0px;
+    border-top: 1px solid #C1C1C1;
+    border-right: 1px solid #C1C1C1;
+    border-left: 1px solid #C1C1C1;
+    transition: 0.2s background ease;
+}
+
+.tabElement h2 {
+    color: #7B7B7B;
+}
+
+.tabElement:hover {
+    background: #DADADA;
+}
+
+.tabElement#selectTab {
+    background: #DADADA;
+}
+
+#contentAndOther {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    flex: 1 0 0;
+    align-self: stretch;
+}
+
+#content_drawCircleProperties {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 390px;
+    flex: 1 0 0;
+    align-self: stretch;
+    border-radius: 0px 0px 8px 8px;
+    border: 1px solid #C1C1C1;
+    background: #F2F2F2;
+}
+
+#minHeightList {
+    width: 100%;
+    min-height: 176px;
+}
+
+#listCircle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    align-self: stretch;
+    overflow-y: auto;
+    max-height: 175px;
+}
+
+.boxListCircle:hover {
+    background: #E8E7E7 !important;
+}
+
+.boxListCircle {
+    cursor: pointer;
+    display: flex;
+    padding: 8px 18px;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    background: #F2F2F2;
+    border-bottom: solid 1px #C1C1C1;
+    transition: 0.3s background ease;
+}
+
+.boxListCircle#selectBoxListCircle {
+    background: #E8E7E7 !important;
+}
+
+.elipseInListCircle {
+    width: 17px;
+    height: 23px;
+    border-radius: 100%;
+    border: solid 2px rgba(108, 165, 250, 0.80);
+}
+
+.boxListCircle input {
+    cursor: pointer;
+}
+
+#lineDivisonProperties {
+    height: 1px;
+    align-self: stretch;
+    background: #C1C1C1;
+}
+
+#propertiesTextAndCircle {
+    display: flex;
+    box-sizing: border-box;
+    padding: 16px 18px 20px 18px;
+
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+}
+
+#propertiesTextAndCircle h2 {
+    color: rgba(123, 123, 123, 0.50);
+    font-size: 11.5px;
+}
+
+#column_propertiesTextAndCircle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    align-self: stretch;
+}
+
+#fontText_propertiesTextAndCircle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+}
+
+#fontText_propertiesTextAndCircle h2 {
+    color: #6F6F6F;
+}
+
+#rowFontText_propertiesTextAndCircle {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    align-self: stretch;
+}
+
+#rowFontText_propertiesTextAndCircle input {
+    font-size: 11px;
+}
+
+.boxInput {
+    display: flex;
+    min-width: 60px;
+    padding: 6px 10px;
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    flex: 0 0 0;
+
+    border-radius: 5px;
+    border: 1px solid #C1C1C1;
+    background: #EDEDED;
+}
+
+#styleText_propertiesTextAndCircle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+}
+
+#styleText_propertiesTextAndCircle input {
+    font-size: 11px;
+}
+
+.boxRowProperties {
+    display: flex;
+    padding: 6px 4px 6px 8px;
+    box-sizing: border-box;
+    align-items: center;
+    gap: 8px;
+    border-radius: 5px;
+    border: 1px solid #C1C1C1;
+    background: #EDEDED;
+    align-self: stretch;
+}
+
+#selectorColor {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 1px solid #C1C1C1;
+    background: #000;
+}
+
+#input_selectorColor {
+    width: 50px;
+}
+
+#input_lineHeight,
+#input_border {
+    width: 30px;
+}
+
+#styleTextAling_propertiesTextAndCircle {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+#styleTextAling_propertiesTextAndCircle img {
+    width: 14px;
+}
+
+.boxIconProperties {
+    cursor: pointer;
+    display: flex;
+    padding: 6px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    border-radius: 5px;
+    border: 1px solid #C1C1C1;
+    background: #EDEDED;
+    transition: 0.2s background ease;
+}
+
+.boxIconProperties:hover {
+    background: #D6D6D6;
+
+}
+
+.boxIconProperties#selectIconBox {
+    background: #D6D6D6;
+}
+
+#othersTools {
+    display: flex;
+    padding: 15px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    align-self: stretch;
+    border-radius: 10px;
+
+    background: #F2F2F2;
+    border-radius: 10px;
+    border: 1px solid #C1C1C1;
+    background: #F2F2F2;
+}
+
+#othersTools h2 {
+    color: #6F6F6F;
+}
+
+.box_othersTools {
+    cursor: pointer;
+    display: flex;
+    padding: 8px 12px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    align-self: stretch;
+    border-radius: 5px;
+    border: 1px solid #C1C1C1;
+    background: #EDEDED;
+}
+
+.loadgif,
+.finishTask {
+    display: none;
+    width: 14px;
+    height: 14px;
+}
+
+#fileProperties {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1 0 0;
+    align-self: stretch;
+}
+
+#content_fileProperties {
+    display: flex;
+    min-height: 240px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    flex: 1 0 0;
+    align-self: stretch;
+    justify-content: space-between;
+    border-radius: 0px 0px 8px 8px;
+    padding-bottom: 15px;
+    border: 1px solid #C1C1C1;
+    background: #F2F2F2;
+}
+
+#listFiles {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    align-self: stretch;
+    background: #C1C1C1;
+}
+
+.listFiles_boxFile {
+    cursor: pointer;
+    display: flex;
+    padding: 8px 18px;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+    background: #F2F2F2;
+    transition: 0.1s background ease;
+}
+
+.listFiles_boxFile:hover {
+    background: #E8E7E7;
+}
+
+.listFiles_boxFile#select_boxFile {
+    background: #E8E7E7;
+}
+
+.iconSaveFile {
+    width: 14px;
+    height: 14px;
+}
+
+#select_boxFile {
+    background: #D6D6D6;
+}
+
+.imageFile {
+    width: 16px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 3px;
+    border: 1px solid #5D90DC;
+}
+
+.listFiles_boxFile h2 {
+    color: #454545;
+    flex: 1 0 0;
+}
+
+.optionsFile {
+    display: flex;
+    padding: 0px 15px;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 10px;
+    align-self: stretch;
+}
+
+.boxOptionsFile {
+    width: 10%;
+    cursor: pointer;
+    display: flex;
+    padding: 7px 10px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex: 1 0 0;
+    border-radius: 5px;
+    border: 1px solid #C1C1C1;
+    background: #E7E7E7;
+    transition: 0.2s background ease;
+}
+
+.boxOptionsFile:hover {
+    background: #DADADA;
+}
+
+.boxOptionsFile h2 {
+    color: #7B7B7B;
+}
