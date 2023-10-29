@@ -536,8 +536,8 @@ function canva(propertiesCanvaControl) {
             textInElement = [];
         };
 
-        var file = e.target.files[0];
-        if (file) {
+        var files = e.target.files;
+        if (files) {
             // remove backgroud hidden and animate
             const backgroud = document.querySelectorAll(".hiddenBackgroud")[0];
             if (backgroud.style.background != "transparent") {
@@ -546,37 +546,43 @@ function canva(propertiesCanvaControl) {
                 removeBackgroundHidden(2, 2);
             };
 
-            var reader = new FileReader();
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
 
-            reader.onload = function (e) {
-                imageObj = new Image();
-                imageObj.onload = function () {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    canvas.width = imageObj.width;
-                    canvas.height = imageObj.height;
+                if (file.type.startsWith("image/")) {
+                    var reader = new FileReader();
 
-                    canvas.style.height = innerHeight + "px";
+                    reader.onload = function (e) {
+                        imageObj = new Image();
+                        imageObj.onload = function () {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            canvas.width = imageObj.width;
+                            canvas.height = imageObj.height;
 
-                    scaleX = canvas.width / canvas.offsetWidth;
-                    scaleY = canvas.height / canvas.offsetHeight;
+                            canvas.style.height = innerHeight + "px";
 
-                    ctx.drawImage(imageObj, 0, 0);
+                            scaleX = canvas.width / canvas.offsetWidth;
+                            scaleY = canvas.height / canvas.offsetHeight;
 
-                    var properties = {
-                        url: e.target.result,
-                        ellipses: [],
-                        square: [],
-                        textInElement: []
+                            ctx.drawImage(imageObj, 0, 0);
+
+                            var properties = {
+                                url: e.target.result,
+                                ellipses: [],
+                                square: [],
+                                textInElement: []
+                            };
+
+                            filesContent.push(properties);
+                            indexSelectFile = filesContent.length - 1;
+                        };
+                        imageObj.src = e.target.result;
+                        propertiesFile(true, e.target.result, file.name);
                     };
 
-                    filesContent.push(properties);
-                    indexSelectFile = filesContent.length - 1;
+                    reader.readAsDataURL(file);
                 };
-                imageObj.src = e.target.result;
-                propertiesFile(true, e.target.result, file.name);
             };
-
-            reader.readAsDataURL(file);
         };
     };
 
@@ -606,7 +612,7 @@ function canva(propertiesCanvaControl) {
                 textInElement = [];
             };
 
-            const propertiesFileSelect = filesContent[indexFile].properties;
+            const propertiesFileSelect = filesContent[indexFile];
 
             // show select
             imageObj = new Image();
@@ -897,9 +903,8 @@ function canva(propertiesCanvaControl) {
 };
 
 // properties circle
-let countClick = 1;
 let lastElementBoxChange;
-let labelsInput = [];
+let multiValuesSelect = [];
 
 function drawCircleProperties(propertiesDrawCircleControl) {
     if (propertiesDrawCircleControl.validAddBox != undefined && propertiesDrawCircleControl.validAddBox) {
@@ -908,9 +913,9 @@ function drawCircleProperties(propertiesDrawCircleControl) {
         selectBoxInListAndSendTab(propertiesDrawCircleControl.indexSelectBox);
     } else {
         removeBoxInList();
-    }
+    };
 
-    // auxiliaries
+    // auxiliaries main
     function addBoxInList() {
         fetch(boxListCircle)
             .then(response => response.text())
@@ -936,8 +941,9 @@ function drawCircleProperties(propertiesDrawCircleControl) {
                 };
 
                 const lastBox = insertElement.lastElementChild;
+                const inputBox = lastBox.querySelector("input");
                 const number = document.querySelectorAll(".boxListCircle").length;
-                lastBox.querySelector("input").placeholder = "Vazio " + number;
+                inputBox.placeholder = "Vazio " + number;
 
                 anime({
                     targets: lastBox,
@@ -946,30 +952,23 @@ function drawCircleProperties(propertiesDrawCircleControl) {
                     easing: 'easeOutExpo'
                 });
 
-                addEventBoxCircle(lastBox);
+                addEventClickBoxCircle(lastBox);
+                addEventInputChangeBox(inputBox);
             });
     };
 
     function removeBoxInList() {
         let boxListCircle = document.querySelectorAll(".boxListCircle");
-        labelsInput.forEach(element => {
-            if (element.indexBoxRef == propertiesDrawCircleControl.indexRemove) {
-                const indexRemove = labelsInput.indexOf(element);
-                for (let i = indexRemove + 1; i < labelsInput.length; i++) {
-                    labelsInput[i].indexBoxRef = textInElement[i].indexBoxRef - 1;
-                };
-                labelsInput.splice(indexRemove, 1);
-            };
-        });
-        labelsInput.pop();
         boxListCircle[propertiesDrawCircleControl.indexRemove].remove();
     };
 
-    function selectBoxInListAndSendTab(indexElement) {
+    function selectBoxInListAndSendTab(indexElement, multiSelect) {
         const allBoxes = document.querySelectorAll(".boxListCircle");
-        allBoxes.forEach(box => {
-            box.id = "";
-        });
+        if (!multiSelect) {
+            allBoxes.forEach(box => {
+                box.id = "";
+            });
+        };
 
         // select
         allBoxes[indexElement].id = "selectBoxListCircle";
@@ -993,12 +992,17 @@ function drawCircleProperties(propertiesDrawCircleControl) {
         document.querySelectorAll("#styleText_propertiesTextAndCircle input")[1].value = lineHeight;
         lastElementBoxChange = allBoxes[indexElement];
 
-        // show
+        // show and add event
         const box_propertiesTextAndCircle = document.querySelector("#column_propertiesTextAndCircle");
-        box_propertiesTextAndCircle.style.display = "flex";
-    }
+        if (box_propertiesTextAndCircle.style.display == "none") {
+            box_propertiesTextAndCircle.style.display = "flex";
+            // active event focus in inputs column
+            addEventChangeOptions();
+        };
+    };
 
-    function addEventBoxCircle(element) {
+    // auxiliaries events
+    function addEventClickBoxCircle(element) {
         const textCountElement = document.querySelector("#textCountElement");
 
         element.addEventListener("click", function (e) {
@@ -1006,16 +1010,23 @@ function drawCircleProperties(propertiesDrawCircleControl) {
 
             if (e.shiftKey) {
                 if (element.id === "selectBoxListCircle") {
-                    textCountElement.textContent = `Elemento(s) selecionado(s)`;
+                    selectBoxInListAndSendTab(indexElementInBox);
                 } else {
-                    // selectBoxInListAndSendTab(indexElementInBox);
-                    textCountElement.textContent = `${indexElementInBox}: Elementos selecionados`;
+                    const indexLeastElementInBox = Array.from(document.querySelectorAll(".boxListCircle")).indexOf(lastElementBoxChange);
+
+                    for (let i = indexLeastElementInBox; i < indexElementInBox + 1; i++) {
+                        selectBoxInListAndSendTab(i, true);
+                    };
+
+                    multiValuesSelect = [indexLeastElementInBox, indexElementInBox + 1];
+                    textCountElement.textContent = `${indexElementInBox + 1}: Elementos selecionados`;
                 }
             } else {
+                // reset
+                multiValuesSelect = [];
+
                 selectBoxInListAndSendTab(indexElementInBox);
                 textCountElement.textContent = `Elemento ${indexElementInBox} selecionado`;
-
-                controlSendCanvaChanges(false, true);
 
                 let propertiesCanvaControl = {
                     validSelectElement: true,
@@ -1024,61 +1035,87 @@ function drawCircleProperties(propertiesDrawCircleControl) {
 
                 canva(propertiesCanvaControl);
             };
-
-            if (countClick === 1) {
-                countClick = countClick += 1;
-
-                controlSendCanvaChanges(true)
-            };
         });
     };
 
-    function controlSendCanvaChanges(activeEventInProperties, isGetInput) {
-        if (activeEventInProperties) {
-            let allinputs = document.querySelectorAll("#column_propertiesTextAndCircle input");
+    function addEventInputChangeBox(element) {
+        element.addEventListener('keydown', function (event) {
+            if (event.keyCode === 13) {
+                element.blur();
+            }
+        });
 
-            allinputs.forEach(input => {
-                input.addEventListener("focusout", function () {
-                    getTextInputSendCanva(true);
-                });
-            });
-        };
+        element.addEventListener("focusout", function () {
+            const allInputInBox = document.querySelectorAll(".boxListCircle input");
+            const boxesArray = [...allInputInBox];
+            const indexElementInBox = boxesArray.indexOf(element);
 
-        if (isGetInput) {
-            getTextInputSendCanva(false);
-        };
-
-        function getTextInputSendCanva(isChangeOption) {
-            let content = lastElementBoxChange.dataset.propertiestext;
+            let content = allInputInBox[indexElementInBox].parentElement.dataset.propertiestext;
             const [font, fontSize, fontColor, lineHeight, alignment] = content.split('/');
 
-            const allBoxes = document.querySelectorAll(".boxListCircle");
-            const boxesArray = [...allBoxes];
-            const indexElementInBox = boxesArray.indexOf(lastElementBoxChange);
+            if (element.value != "") {
+                const propertiesInsertTxt = [font, fontSize, fontColor, lineHeight, alignment, element.value];
+                let propertiesCanvaControl = {
+                    validInsertTxt: true,
+                    propertiesInsertTxt: propertiesInsertTxt,
+                    index: indexElementInBox
+                };
 
-            if (!isChangeOption) {
-                const inputCircle = lastElementBoxChange.querySelector("input");
-                const elementsAling = document.querySelectorAll(".boxIconProperties");
+                canva(propertiesCanvaControl);
+            }
+        });
+    };
 
-                elementsAling.forEach(element => {
-                    element.id = "";
-                });
-                elementsAling[alignment].id = "selectIconBox";
+    function addEventChangeOptions() {
+        let allinputs = document.querySelectorAll("#column_propertiesTextAndCircle input");
 
-                inputCircle.addEventListener("focusout", function () {
-                    if (!labelsInput[indexElementInBox]) {
-                        labelNew = {
-                            content: inputCircle.value,
-                            indexBoxRef: indexElementInBox
+        allinputs.forEach(input => {
+            input.addEventListener("focusout", function () {
+                // get index
+                const allBoxes = document.querySelectorAll(".boxListCircle");
+                const boxesArray = [...allBoxes];
+                const indexElementInBox = boxesArray.indexOf(lastElementBoxChange);
+
+                // get dataset
+                let content = allBoxes[indexElementInBox].dataset.propertiestext;
+                const [font, fontSize, fontColor, lineHeight, alignment] = content.split('/');
+
+                // get input from lastElementBoxChange
+                const inputBox = lastElementBoxChange.querySelector("input");
+
+                // get values from column propertiesTextAndCircle
+                let [boxInputFontSize] = document.querySelectorAll("#rowFontText_propertiesTextAndCircle .boxInput input");
+                let [colorFont, lineHeightFont] = document.querySelectorAll("#styleText_propertiesTextAndCircle input");
+
+                // if exist multiValuesSelect update all dataset of boxListCircle
+                if (multiValuesSelect.length > 0) {
+                    const inputsAllBox = document.querySelectorAll(".boxListCircle input");
+
+                    for (let i = multiValuesSelect[0]; i < multiValuesSelect[1]; i++) {
+                        // lebrar de pegar o font e alig
+                        allBoxes[i].dataset.propertiestext = `${font}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
+
+                        // if exist inputs values in index element send canva
+                        if (inputsAllBox[i].value != "") {
+                            const propertiesInsertTxt = [font, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputsAllBox[i].value];
+
+                            let propertiesCanvaControl = {
+                                validInsertTxt: true,
+                                propertiesInsertTxt: propertiesInsertTxt,
+                                index: i
+                            };
+
+                            canva(propertiesCanvaControl);
                         };
+                    };
+                } else {
+                    // if not update only lastElementBox
+                    lastElementBoxChange.dataset.propertiestext = `${font}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
 
-                        labelsInput.push(labelNew);
-                    } else {
-                        labelsInput[indexElementInBox].content = inputCircle.value;
-                    }
+                    // if exist input value in lastElementBoxChange send canva
+                    if (inputBox.value != "") {
+                        const propertiesInsertTxt = [font, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputBox.value];
 
-                    if (inputCircle.value != "") {
-                        const propertiesInsertTxt = [font, fontSize, fontColor, lineHeight, alignment, inputCircle.value];
                         let propertiesCanvaControl = {
                             validInsertTxt: true,
                             propertiesInsertTxt: propertiesInsertTxt,
@@ -1086,28 +1123,11 @@ function drawCircleProperties(propertiesDrawCircleControl) {
                         };
 
                         canva(propertiesCanvaControl);
-                    }
-                });
-            } else {
-                // isChangeOption and send canva
-                let [boxInputFontSize] = document.querySelectorAll("#rowFontText_propertiesTextAndCircle .boxInput input");
-                let [colorFont, lineHeightFont] = document.querySelectorAll("#styleText_propertiesTextAndCircle input");
-
-                if (labelsInput.length > 0 && labelsInput[indexElementInBox].content != "") {
-                    const propertiesInsertTxt = [font, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, labelsInput[indexElementInBox].content];
-                    lastElementBoxChange.dataset.propertiestext = `${font}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
-
-                    let propertiesCanvaControl = {
-                        validInsertTxt: true,
-                        propertiesInsertTxt: propertiesInsertTxt,
-                        index: indexElementInBox
                     };
-
-                    canva(propertiesCanvaControl);
                 };
-            };
-        };
 
+            });
+        });
     };
 };
 
