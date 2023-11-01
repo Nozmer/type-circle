@@ -74,14 +74,14 @@ function canva(propertiesCanvaControl) {
         document.addEventListener('keydown', keyDown);
         // ctrl show text
         document.addEventListener("keydown", function (event) {
-            if (event.key === "Control") {
-                ctrlShowTxt(true);
+            if (event.key === "Shift") {
+                shiftShowTxt(true);
             }
         });
 
         document.addEventListener("keyup", function (event) {
-            if (event.key === "Control") {
-                ctrlShowTxt(false);
+            if (event.key === "Shift") {
+                shiftShowTxt(false);
             }
         });
     };
@@ -433,6 +433,15 @@ function canva(propertiesCanvaControl) {
                 existElement = null;
             };
         };
+        if (e.ctrlKey && e.key === "v" && existElement) {
+            const index = square.indexOf(existElement);
+            // send drawCircleProperties to paste text
+            const propertiesDrawCircleControl = {
+                pasteText: true,
+                indexPasteText: index
+            };
+            drawCircleProperties(propertiesDrawCircleControl);
+        };
     };
 
     function putBoxByAi() {
@@ -577,7 +586,14 @@ function canva(propertiesCanvaControl) {
                             indexSelectFile = filesContent.length - 1;
                         };
                         imageObj.src = e.target.result;
-                        propertiesFile(true, e.target.result, file.name);
+
+                        var propertiesFile = {
+                            validAddFile: true,
+                            urlFile: e.target.result,
+                            nameFile: file.name
+                        };
+
+                        controlPropertiesFile(propertiesFile);
                     };
 
                     reader.readAsDataURL(file);
@@ -586,30 +602,33 @@ function canva(propertiesCanvaControl) {
         };
     };
 
-    function selectFile(indexFile) {
+    function selectFile(indexFile, ignoreChange) {
         if (indexFile != indexSelectFile) {
             // save changes of indexSelectFile
-            if (filesContent.length > 0) {
-                filesContent[indexSelectFile].properties = {
-                    url: filesContent[indexSelectFile].url,
-                    ellipses: ellipses,
-                    square: square,
-                    textInElement: textInElement
-                };
-
-                // remove boxes in interface
-                for (let index = ellipses.length - 1; index >= 0; index--) {
-                    // remove in propertiesDraw
-                    const propertiesDrawCircleControl = {
-                        indexRemove: index
+            if (!ignoreChange) {
+                console.log("aas");
+                if (filesContent.length > 0) {
+                    filesContent[indexSelectFile].properties = {
+                        url: filesContent[indexSelectFile].url,
+                        ellipses: ellipses,
+                        square: square,
+                        textInElement: textInElement
                     };
-                    drawCircleProperties(propertiesDrawCircleControl);
-                }
-
-                // reset values 
-                ellipses = [];
-                square = [];
-                textInElement = [];
+    
+                    // remove boxes in interface
+                    for (let index = ellipses.length - 1; index >= 0; index--) {
+                        // remove in propertiesDraw
+                        const propertiesDrawCircleControl = {
+                            indexRemove: index
+                        };
+                        drawCircleProperties(propertiesDrawCircleControl);
+                    }
+    
+                    // reset values 
+                    ellipses = [];
+                    square = [];
+                    textInElement = [];
+                };
             };
 
             const propertiesFileSelect = filesContent[indexFile];
@@ -658,8 +677,21 @@ function canva(propertiesCanvaControl) {
         };
     };
 
+    function removeFile(indexFile) {
+        // select before
+        if (filesContent.length > 1) {
+            selectFile(indexFile - 1, true);
+        } else {
+            // clean canva
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        };
+
+        // remove file
+        filesContent.splice(indexFile, 1);
+    };
+
     // auxiliaries
-    function ctrlShowTxt(isPress) {
+    function shiftShowTxt(isPress) {
         if (isPress) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(imageObj, 0, 0);
@@ -887,18 +919,29 @@ function canva(propertiesCanvaControl) {
         return null;
     };
 
+    // init
     if (propertiesCanvaControl.validInit != undefined && propertiesCanvaControl.validInit) {
         init();
 
         if (propertiesCanvaControl.validAddImage) {
             document.getElementById('fileInputImage').click();
         };
-    } else if (propertiesCanvaControl.validSelectElement != undefined && propertiesCanvaControl.validSelectElement) {
+    }
+    // selectElement
+    else if (propertiesCanvaControl.validSelectElement != undefined && propertiesCanvaControl.validSelectElement) {
         selectOneElement(propertiesCanvaControl.indexElementSelect);
-    } else if (propertiesCanvaControl.validInsertTxt != undefined && propertiesCanvaControl.validInsertTxt) {
+    }
+    // insert text in box
+    else if (propertiesCanvaControl.validInsertTxt != undefined && propertiesCanvaControl.validInsertTxt) {
         addTextInEllpseSelect(propertiesCanvaControl.index, propertiesCanvaControl.propertiesInsertTxt);
-    } else if (propertiesCanvaControl.validSelectFile != undefined && propertiesCanvaControl.validSelectFile) {
+    }
+    // selectFile
+    else if (propertiesCanvaControl.validSelectFile != undefined && propertiesCanvaControl.validSelectFile) {
         selectFile(propertiesCanvaControl.index);
+    }
+    // remove file
+    else if (propertiesCanvaControl.validRemoveFile != undefined && propertiesCanvaControl.validRemoveFile) {
+        removeFile(propertiesCanvaControl.indexRemoveFile);
     };
 };
 
@@ -911,6 +954,8 @@ function drawCircleProperties(propertiesDrawCircleControl) {
         addBoxInList();
     } else if (propertiesDrawCircleControl.selectBox != undefined && propertiesDrawCircleControl.selectBox) {
         selectBoxInListAndSendTab(propertiesDrawCircleControl.indexSelectBox);
+    } else if (propertiesDrawCircleControl.pasteText != undefined && propertiesDrawCircleControl.pasteText) {
+        pasteContent(propertiesDrawCircleControl.indexPasteText);
     } else {
         removeBoxInList();
     };
@@ -980,6 +1025,16 @@ function drawCircleProperties(propertiesDrawCircleControl) {
         updateValuesInTab_ShowTab(indexElement);
     };
 
+    function pasteContent(indexElement) {
+        const allInput = document.querySelectorAll(".boxListCircle input");
+        allInput[indexElement].value = "";
+        allInput[indexElement].focus();
+
+        setTimeout(function () {
+            allInput[indexElement].blur();
+        }, 50);
+    };
+
     function updateValuesInTab_ShowTab(indexElement) {
         const allBoxes = document.querySelectorAll(".boxListCircle");
 
@@ -1039,6 +1094,7 @@ function drawCircleProperties(propertiesDrawCircleControl) {
     };
 
     function addEventInputChangeBox(element) {
+        // key enter
         element.addEventListener('keydown', function (event) {
             if (event.keyCode === 13) {
                 element.blur();
@@ -1070,6 +1126,13 @@ function drawCircleProperties(propertiesDrawCircleControl) {
         let allinputs = document.querySelectorAll("#column_propertiesTextAndCircle input");
 
         allinputs.forEach(input => {
+            // key enter
+            input.addEventListener('keydown', function (event) {
+                if (event.keyCode === 13) {
+                    input.blur();
+                }
+            });
+
             input.addEventListener("focusout", function () {
                 // get index
                 const allBoxes = document.querySelectorAll(".boxListCircle");
@@ -1131,8 +1194,13 @@ function drawCircleProperties(propertiesDrawCircleControl) {
     };
 };
 
-function propertiesFile(isAdd, urlFile, nameFile) {
-    if (isAdd) {
+function controlPropertiesFile(propertiesFile) {
+    if (propertiesFile.validAddFile != undefined && propertiesFile.validAddFile) {
+        addFileInDiv();
+    };
+
+    // main
+    function addFileInDiv() {
         // remove selects 
         const boxFile = document.querySelectorAll(".listFiles_boxFile");
         if (boxFile.length > 1) {
@@ -1142,18 +1210,18 @@ function propertiesFile(isAdd, urlFile, nameFile) {
         };
 
         const handlebarsTemplate = `
-            <img class="imageFile" src="{{urlFile}}" alt="">
-            <h2>{{nameFile}}</h2>
-            <a href="" class="iconSaveFile" download="{{nameFile}}">
-                <img src="{{downloadIcon}}" alt="">
-            </a>
-            <img src="{{deleteIcon}}" alt="">
-        `;
+                    <img class="imageFile" src="{{urlFile}}" alt="">
+                    <h2>{{nameFile}}</h2>
+                    <a href="" class="iconSaveFile" download="{{nameFile}}">
+                        <img src="{{downloadIcon}}" alt="">
+                    </a>
+                    <img class="removeFile" src="{{deleteIcon}}" alt="">
+                `;
 
         const data = {
             imageObj: imageObj,
-            nameFile: nameFile,
-            urlFile: urlFile,
+            nameFile: propertiesFile.nameFile,
+            urlFile: propertiesFile.urlFile,
             downloadIcon: downloadIcon,
             deleteIcon: deleteIcon
         };
@@ -1172,30 +1240,62 @@ function propertiesFile(isAdd, urlFile, nameFile) {
         element.id = "select_boxFile";
 
         element.innerHTML = html;
-
         const compiledElement = element;
 
-        compiledElement.addEventListener("click", function () {
-            const boxFile = document.querySelectorAll(".listFiles_boxFile");
-            const index = Array.from(boxFile).indexOf(this);
-
-            boxFile.forEach(element => {
-                element.id = "";
-            });
-
-            compiledElement.id = "select_boxFile";
-
-            let propertiesCanvaControl = {
-                validSelectFile: true,
-                index: index
-            };
-
-            canva(propertiesCanvaControl);
-        });
+        // add event
+        addEventClickInFile_passCanvaToSelect(compiledElement);
+        addEventClickRemoveFile(compiledElement);
 
         // Insira o elemento no documento
         const insertElement = document.querySelector('#listFiles');
         insertElement.appendChild(compiledElement);
+    };
+
+    // auxiliaries events
+    function addEventClickInFile_passCanvaToSelect(elementFile) {
+        elementFile.addEventListener("click", function (e) {
+            // make sure it's not the remove button
+            if (e.target.className != "removeFile") {
+                const boxFile = document.querySelectorAll(".listFiles_boxFile");
+                const index = Array.from(boxFile).indexOf(this);
+
+                boxFile.forEach(element => {
+                    element.id = "";
+                });
+
+                elementFile.id = "select_boxFile";
+
+                let propertiesCanvaControl = {
+                    validSelectFile: true,
+                    index: index
+                };
+
+                canva(propertiesCanvaControl);
+            };
+        });
+    };
+
+    function addEventClickRemoveFile(elementFile) {
+        const buttonRemove = elementFile.querySelector(".removeFile");
+
+        buttonRemove.addEventListener("click", function () {
+            const boxFile = document.querySelectorAll(".listFiles_boxFile");
+            const index = Array.from(boxFile).indexOf(elementFile);
+
+            elementFile.remove();
+
+            // select before
+            if (boxFile.length > 1) {
+                boxFile[index - 1].id = "select_boxFile";
+            };
+
+            // send canva for remove
+            let propertiesCanvaControl = {
+                validRemoveFile: true,
+                indexRemoveFile: index
+            };
+            canva(propertiesCanvaControl);
+        });
     };
 };
 
