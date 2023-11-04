@@ -66,7 +66,7 @@
                             </div>
                         </div>
                         <div id="contentAndOther">
-                            <div id="content_drawCircleProperties">
+                            <div style="display: none;" id="content_drawCircleProperties">
                                 <div id="minHeightList">
                                     <div id="listCircle">
                                     </div>
@@ -119,6 +119,87 @@
                                                     alt="">
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="content_importText">
+                                <div id="addFileImport">
+                                    <div class="buttonIconExtension">
+                                        <h2>Adicionar arquivo de texto</h2>
+                                        <div class="columnBoxExtensionIcon">
+                                            <img src="{{ url_for('static', filename='img/icons/extensionFile.svg') }}" alt="">
+                                            <div class="boxExtensionIcon">
+                                                <h2>.txt</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="boxExampleCode">
+                                        <div class="topExampleCode">
+                                            <div class="indicatorHelp">
+                                                <h2>?</h2>
+                                            </div>
+                                            <h2>Exemplo de arquivo:</h2>
+                                        </div>
+                                        <div class="contentExampleCode">
+                                            <div class="boxFileCode">
+                                                <h2>Texto 1 [...]</h2>
+                                                <h2>Texto 2 [...]</h2>
+                                                <h2>Texto 3 [...]</h2>
+                                                <h2>[...]</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: none;" id="confirmFileImport">
+                                    <div id="topConfirmFileImport">
+                                        <div id="name_BackFile">
+                                            <div id="buttonBack">
+                                                <img src="{{ url_for('static', filename='img/icons/seta.svg') }}" alt="">
+                                            </div>
+                                            <div id="nameFileImport">
+                                                <h2>Arquivo</h2>
+                                                <div id="boxNameFileImport">
+                                                    <h2>test.txt</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="addTextFile">
+                                            <h2>Adicionar</h2>
+                                        </div>
+                                    </div>
+                                    <div id="previwBox">
+                                        <h2>Prévia:</h2>
+                                        <div class="boxTextAddImport">
+                                            <div class="indicator_text_import">
+                                                <div class="indicatorTextPut">
+                                                    <div class="ellipseIndicator"></div>
+                                                    <h2>1</h2>
+                                                </div>
+                                                <h2>Texto algum</h2>
+                                            </div>
+                                            <img src="{{ url_for('static', filename='img/icons/points.svg') }}" alt="">
+                                        </div>
+                                        <div class="boxTextAddImport">
+                                            <div class="indicator_text_import">
+                                                <div class="indicatorTextPut">
+                                                    <div class="ellipseIndicator"></div>
+                                                    <h2>2</h2>
+                                                </div>
+                                                <h2>Texto algum</h2>
+                                            </div>
+                                            <img src="{{ url_for('static', filename='img/icons/points.svg') }}" alt="">
+                                        </div>
+                                        <div class="boxTextAddImport">
+                                            <div class="indicator_text_import">
+                                                <div class="indicatorTextPut">
+                                                    <div class="ellipseIndicator"></div>
+                                                    <h2>3</h2>
+                                                </div>
+                                                <h2>Texto algum</h2>
+                                            </div>
+                                            <img src="{{ url_for('static', filename='img/icons/points.svg') }}" alt="">
+                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>

@@ -510,6 +510,7 @@ function canva(propertiesCanvaControl) {
         ctx.drawImage(imageObj, 0, 0);
 
         // Redraw existing text
+
         if (textInElement.length > 0) {
             textInElement.forEach(txt => {
                 drawTextInElement(ctx, txt);
@@ -614,7 +615,7 @@ function canva(propertiesCanvaControl) {
                         square: square,
                         textInElement: textInElement
                     };
-    
+
                     // remove boxes in interface
                     for (let index = ellipses.length - 1; index >= 0; index--) {
                         // remove in propertiesDraw
@@ -623,7 +624,7 @@ function canva(propertiesCanvaControl) {
                         };
                         drawCircleProperties(propertiesDrawCircleControl);
                     }
-    
+
                     // reset values 
                     ellipses = [];
                     square = [];
