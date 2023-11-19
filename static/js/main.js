@@ -31,7 +31,6 @@ function canva(propertiesCanvaControl) {
 
     function init() {
         const boxTool = document.querySelectorAll(".box_othersTools")[0];
-        const boxSaveOne = document.querySelectorAll(".iconSaveFile");
         const boxAddNewImage = document.querySelectorAll(".boxOptionsFile")[1];
 
         // mouse
@@ -41,10 +40,6 @@ function canva(propertiesCanvaControl) {
 
         // click
         boxTool.addEventListener('click', putBoxByAi);
-        boxTool.addEventListener('click', putBoxByAi);
-        boxSaveOne.forEach(element => {
-            element.addEventListener('click', saveFileOne);
-        });
         boxAddNewImage.addEventListener('click', function () {
             document.getElementById('fileInputImage').click();
         });
@@ -487,12 +482,11 @@ function canva(propertiesCanvaControl) {
             });
     };
 
-    function saveFileOne() {
+    function saveFileOne(elementFile) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(imageObj, 0, 0);
 
         // Redraw existing text
-
         if (textInElement.length > 0) {
             textInElement.forEach(txt => {
                 drawTextInElement(ctx, txt);
@@ -500,7 +494,7 @@ function canva(propertiesCanvaControl) {
         };
 
         let dt = canvas.toDataURL('image/jpeg');
-        this.href = dt;
+        elementFile.href = dt;
     };
 
     function addNewImage(e) {
@@ -996,6 +990,10 @@ function canva(propertiesCanvaControl) {
     else if (propertiesCanvaControl.validCleanText != undefined && propertiesCanvaControl.validCleanText) {
         cleanTextsInBox();
     }
+    // save file
+    else if (propertiesCanvaControl.validSaveFile != undefined && propertiesCanvaControl.validSaveFile) {
+        saveFileOne(propertiesCanvaControl.elementFile);
+    }
     // selectFile
     else if (propertiesCanvaControl.validSelectFile != undefined && propertiesCanvaControl.validSelectFile) {
         selectFile(propertiesCanvaControl.index);
@@ -1280,7 +1278,7 @@ function controlPropertiesFile(propertiesFile) {
         const handlebarsTemplate = `
                     <img class="imageFile" src="{{urlFile}}" alt="">
                     <h2>{{nameFile}}</h2>
-                    <a href="" class="iconSaveFile" download="{{nameFile}}">
+                    <a class="iconSaveFile" download="{{nameFile}}">
                         <img src="{{downloadIcon}}" alt="">
                     </a>
                     <img class="removeFile" src="{{deleteIcon}}" alt="">
@@ -1313,8 +1311,9 @@ function controlPropertiesFile(propertiesFile) {
         // add event
         addEventClickInFile_passCanvaToSelect(compiledElement);
         addEventClickRemoveFile(compiledElement);
+        addEventClickSaveFile(compiledElement);
 
-        // Insira o elemento no documento
+        // insert element
         const insertElement = document.querySelector('#listFiles');
         insertElement.appendChild(compiledElement);
     };
@@ -1361,6 +1360,18 @@ function controlPropertiesFile(propertiesFile) {
             let propertiesCanvaControl = {
                 validRemoveFile: true,
                 indexRemoveFile: index
+            };
+            canva(propertiesCanvaControl);
+        });
+    };
+
+    function addEventClickSaveFile(elementFile) {
+        const boxSaveOne = elementFile.querySelector(".iconSaveFile");
+        boxSaveOne.addEventListener('click', function () {
+            // send canva for remove
+            let propertiesCanvaControl = {
+                validSaveFile: true,
+                elementFile: boxSaveOne
             };
             canva(propertiesCanvaControl);
         });
@@ -1696,7 +1707,7 @@ function customStyleSelect() {
     /*if the user clicks anywhere outside the select box,
     then close all select boxes:*/
     document.addEventListener("click", closeAllSelect);
-};  
+};
 
 function boxErroAnimateShow(msg) {
     const box = document.querySelector(".msgErro");
