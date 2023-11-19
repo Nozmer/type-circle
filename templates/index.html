@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>typeCircle</title>
     <script>
-        let imageUrl = "{{ url_for('static', filename='img/manga/03.png') }}";
+        let imageTest = "{{ url_for('static', filename='img/test/03.png') }}";
         let boxListCircle = "{{ url_for('static', filename='js/template/boxListCircle.handlebars') }}";
         let boxOptionsFile = "{{ url_for('static', filename='js/template/boxOptionsFile.handlebars') }}";
         // icon
         let downloadIcon = "{{ url_for('static', filename='img/icons/baixar.svg') }}";
+        let moveIcon = "{{ url_for('static', filename='img/icons/points.svg') }}";
         let deleteIcon = "{{ url_for('static', filename='img/icons/excluir.svg') }}";
     </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -21,6 +22,11 @@
 </head>
 
 <body>
+    <div class="msgErro no-select">
+        <img src="{{ url_for('static', filename='img/icons/msgErro.svg') }}" alt="">
+        <h2></h2>
+    </div>
+
     <div id="conteinerMain">
         <div id="menuTools">
             <div id="select_boxTools" class="boxTools"></div>
@@ -53,7 +59,6 @@
                     <h1>Desenhar circulo com texto</h1>
                 </div>
             </div>
-
             <div id="elementsProperties">
                 <div class="hiddenBackgroud">
                     <div id="drawCircleProperties" class="no-select">
@@ -66,7 +71,7 @@
                             </div>
                         </div>
                         <div id="contentAndOther">
-                            <div style="display: none;" id="content_drawCircleProperties">
+                            <div id="content_drawCircleProperties">
                                 <div id="minHeightList">
                                     <div id="listCircle">
                                     </div>
@@ -122,12 +127,14 @@
                                     </div>
                                 </div>
                             </div>
-                            <div id="content_importText">
+                            <div style="display: none;" id="content_importText">
                                 <div id="addFileImport">
                                     <div class="buttonIconExtension">
                                         <h2>Adicionar arquivo de texto</h2>
+                                        <input type="file" id="fileInputImportText" accept=".txt" style="display:none;">
                                         <div class="columnBoxExtensionIcon">
-                                            <img src="{{ url_for('static', filename='img/icons/extensionFile.svg') }}" alt="">
+                                            <img src="{{ url_for('static', filename='img/icons/extensionFile.svg') }}"
+                                                alt="">
                                             <div class="boxExtensionIcon">
                                                 <h2>.txt</h2>
                                             </div>
@@ -154,7 +161,8 @@
                                     <div id="topConfirmFileImport">
                                         <div id="name_BackFile">
                                             <div id="buttonBack">
-                                                <img src="{{ url_for('static', filename='img/icons/seta.svg') }}" alt="">
+                                                <img src="{{ url_for('static', filename='img/icons/seta.svg') }}"
+                                                    alt="">
                                             </div>
                                             <div id="nameFileImport">
                                                 <h2>Arquivo</h2>
@@ -169,37 +177,7 @@
                                     </div>
                                     <div id="previwBox">
                                         <h2>Prévia:</h2>
-                                        <div class="boxTextAddImport">
-                                            <div class="indicator_text_import">
-                                                <div class="indicatorTextPut">
-                                                    <div class="ellipseIndicator"></div>
-                                                    <h2>1</h2>
-                                                </div>
-                                                <h2>Texto algum</h2>
-                                            </div>
-                                            <img src="{{ url_for('static', filename='img/icons/points.svg') }}" alt="">
-                                        </div>
-                                        <div class="boxTextAddImport">
-                                            <div class="indicator_text_import">
-                                                <div class="indicatorTextPut">
-                                                    <div class="ellipseIndicator"></div>
-                                                    <h2>2</h2>
-                                                </div>
-                                                <h2>Texto algum</h2>
-                                            </div>
-                                            <img src="{{ url_for('static', filename='img/icons/points.svg') }}" alt="">
-                                        </div>
-                                        <div class="boxTextAddImport">
-                                            <div class="indicator_text_import">
-                                                <div class="indicatorTextPut">
-                                                    <div class="ellipseIndicator"></div>
-                                                    <h2>3</h2>
-                                                </div>
-                                                <h2>Texto algum</h2>
-                                            </div>
-                                            <img src="{{ url_for('static', filename='img/icons/points.svg') }}" alt="">
-                                        </div>
-                                        
+                                        <div id="elements_previwBox"></div>
                                     </div>
                                 </div>
                             </div>
@@ -237,7 +215,7 @@
                                 </div>
                                 <div class="boxOptionsFile">
                                     <h2>Adicionar images</h2>
-                                    <input type="file" id="fileInputImage" style="display:none;" multiple>
+                                    <input type="file" id="fileInputImage" style="display:none;" accept=".jpg,.png" multiple>
                                     <img src="{{ url_for('static', filename='img/icons/addimage.svg') }}" alt="">
                                 </div>
                             </div>

@@ -254,7 +254,7 @@ canvas {
     background: #DEDEDE;
 }
 
-.hiddenBackgroud:last-child{
+.hiddenBackgroud:last-child {
     height: 100%;
 }
 
@@ -310,6 +310,30 @@ canvas {
     align-items: flex-start;
     gap: 18px;
     flex-shrink: 0;
+}
+
+.msgErro {
+    display: none;
+    position: absolute;
+    right: 370px;
+    top: -24px;
+    min-width: 170px;
+    max-width: 170px;
+    padding: 10px 14px;
+    align-items: center;
+    gap: 8px;
+    border-radius: 10px;
+    background: rgba(207, 79, 79, 0.80);
+}
+
+.msgErro img {
+    width: 14px;
+    height: 14px;
+}
+
+.msgErro h2 {
+    color: #FAFAFA;
+    font-size: 11px;
 }
 
 #boxNameProperties {
@@ -791,7 +815,7 @@ canvas {
 
 #previwBox {
     display: flex;
-    padding: 12px;
+    padding: 12px 17px 12px 12px;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
@@ -799,6 +823,15 @@ canvas {
     border-radius: 5px;
     border: 1px solid #C1C1C1;
     background: #EDEDED;
+}
+
+#elements_previwBox{
+    display: flex;
+    padding-right: 5px;
+    gap: 8px;
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: 170px;
 }
 
 .boxTextAddImport {
@@ -819,9 +852,15 @@ canvas {
 
 .indicator_text_import {
     display: flex;
+    width: auto;
     flex: 1 0 0;
     align-items: center;
     gap: 10px;
+}
+
+.indicator_text_import h2{
+    color: #6F6F6F;
+    max-width: 160px;
 }
 
 .indicatorTextPut {

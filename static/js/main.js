@@ -34,24 +34,6 @@ function canva(propertiesCanvaControl) {
         const boxSaveOne = document.querySelectorAll(".iconSaveFile");
         const boxAddNewImage = document.querySelectorAll(".boxOptionsFile")[1];
 
-        // imageObj = new Image();
-        // imageObj.onload = function () {
-        //     // Defina a largura e altura do canvas para corresponder ao tamanho da imagem
-        //     canvas.width = imageObj.width;
-        //     canvas.height = imageObj.height;
-
-        //     // Use CSS para dimensionar o canvas na página
-        //     canvas.style.height = innerHeight + "px";
-
-        //     // Calcule as proporções de redimensionamento
-        //     scaleX = canvas.width / canvas.offsetWidth;
-        //     scaleY = canvas.height / canvas.offsetHeight;
-
-        //     ctx.drawImage(imageObj, 0, 0);
-        // };
-
-        // imageObj.src = imageUrl;
-
         // mouse
         canvas.addEventListener('mousedown', mouseDown, false);
         canvas.addEventListener('mouseup', mouseUp, false);
@@ -68,7 +50,7 @@ function canva(propertiesCanvaControl) {
         });
 
         // change
-        document.getElementById('fileInputImage').addEventListener('change', addNewImage)
+        document.getElementById('fileInputImage').addEventListener('change', addNewImage);
 
         // key
         document.addEventListener('keydown', keyDown);
@@ -823,6 +805,33 @@ function canva(propertiesCanvaControl) {
         drawSupportPoint(ctx, square[indexElement]);
     };
 
+    function insertTxtByImport(propertiesInsertTxtByImport) {
+        for (let i = 0; i < ellipses.length; i++) {
+            const propertiesInsertTxt = [propertiesInsertTxtByImport[0], propertiesInsertTxtByImport[1], propertiesInsertTxtByImport[2], propertiesInsertTxtByImport[3], propertiesInsertTxtByImport[4], propertiesInsertTxtByImport[5][i]];
+            addTextInEllpseSelect(i, propertiesInsertTxt);
+        };
+    };
+
+    function cleanTextsInBox() {
+        // reset text 
+        textInElement = [];
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(imageObj, 0, 0);
+
+        // Redraw existing ellipses
+        ellipses.forEach(ellipse => {
+            drawEllipseRefText(ctx, ellipse);
+        });
+
+        // Redraw existing text
+        if (textInElement.length > 0) {
+            textInElement.forEach(txt => {
+                drawTextInElement(ctx, txt);
+            });
+        };
+    };
+
     function addTextInEllpseSelect(indexElement, propertiesInsertTxt) {
         const squareInsert = square[indexElement];
 
@@ -926,6 +935,49 @@ function canva(propertiesCanvaControl) {
 
         if (propertiesCanvaControl.validAddImage) {
             document.getElementById('fileInputImage').click();
+        } else if (propertiesCanvaControl.validAddImageLocal) {
+            // init by image local (debug) only test, no use
+            const backgroud = document.querySelectorAll(".hiddenBackgroud")[0];
+            if (backgroud.style.background != "transparent") {
+                removeBackgroundHidden(0, 0);
+                removeBackgroundHidden(1, 1);
+                removeBackgroundHidden(2, 2);
+            };
+
+            imageObj = new Image();
+            imageObj.onload = function () {
+                setTimeout(() => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    canvas.width = imageObj.width;
+                    canvas.height = imageObj.height;
+
+                    canvas.style.height = innerHeight + "px";
+
+                    scaleX = canvas.width / canvas.offsetWidth;
+                    scaleY = canvas.height / canvas.offsetHeight;
+
+                    ctx.drawImage(imageObj, 0, 0);
+
+                    var properties = {
+                        url: propertiesCanvaControl.pathImageTest,
+                        ellipses: [],
+                        square: [],
+                        textInElement: []
+                    };
+
+                    filesContent.push(properties);
+                    indexSelectFile = filesContent.length - 1;
+                }, 500);
+            };
+            imageObj.src = propertiesCanvaControl.pathImageTest;
+
+            var propertiesFile = {
+                validAddFile: true,
+                urlFile: propertiesCanvaControl.pathImageTest,
+                nameFile: "image test"
+            };
+
+            controlPropertiesFile(propertiesFile);
         };
     }
     // selectElement
@@ -935,6 +987,14 @@ function canva(propertiesCanvaControl) {
     // insert text in box
     else if (propertiesCanvaControl.validInsertTxt != undefined && propertiesCanvaControl.validInsertTxt) {
         addTextInEllpseSelect(propertiesCanvaControl.index, propertiesCanvaControl.propertiesInsertTxt);
+    }
+    // insert text in box by import
+    else if (propertiesCanvaControl.validInsertTxtByImport != undefined && propertiesCanvaControl.validInsertTxtByImport) {
+        insertTxtByImport(propertiesCanvaControl.propertiesInsertTxtByImport);
+    }
+    // clean texts in box
+    else if (propertiesCanvaControl.validCleanText != undefined && propertiesCanvaControl.validCleanText) {
+        cleanTextsInBox();
     }
     // selectFile
     else if (propertiesCanvaControl.validSelectFile != undefined && propertiesCanvaControl.validSelectFile) {
@@ -949,6 +1009,13 @@ function canva(propertiesCanvaControl) {
 // properties circle
 let lastElementBoxChange;
 let multiValuesSelect = [];
+
+// values default for fonts
+let fontDefault = "ccwildwordsintregular";
+let fontSizeDefault = "18";
+let fontColorDefault = "rgba(0, 0, 0)";
+let lineHeightDefault = "1.5";
+let alignmentDefault = "0";
 
 function drawCircleProperties(propertiesDrawCircleControl) {
     if (propertiesDrawCircleControl.validAddBox != undefined && propertiesDrawCircleControl.validAddBox) {
@@ -1300,7 +1367,251 @@ function controlPropertiesFile(propertiesFile) {
     };
 };
 
+function importTextToCanva() {
+    const fileInput = document.getElementById('fileInputImportText');
+    const button = document.querySelector("#addFileImport .buttonIconExtension");
+    let textsInBox = document.querySelectorAll(".contentLineTextImport");
+
+    // main fuctions
+    button.addEventListener("click", function () {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const fileContent = e.target.result;
+                const lines = fileContent.split('\n');
+                const linesWithValue = [];
+
+                // check if exist lines
+                if (lines == "") {
+                    boxErroAnimateShow("Arquivo sem linhas");
+                } else {
+                    // get linesWithValue
+                    lines.forEach((line) => {
+                        if (line != "") {
+                            linesWithValue.push(line);
+                        };
+                    });
+
+                    // change to confirmFileImport and add
+                    let propertiesImport = {
+                        validAdd: true,
+                        linesWithValue: linesWithValue
+                    };
+                    propertiesImportTextToCanva(propertiesImport);
+
+                    // add event drag
+                    eventDragChangePosition();
+
+                    // send canva
+                    sendCanvaInnerText();
+                };
+            };
+
+            reader.readAsText(file);
+        }
+    });
+
+    function addTextInBoxDrawCircle() {
+        const addFileImport = document.querySelector("#addFileImport");
+        const confirmFileImport = document.querySelector("#confirmFileImport");
+
+        const boxListCircle = document.querySelectorAll(".boxListCircle");
+
+        const boxListCircleInput = document.querySelectorAll(".boxListCircle input");
+        const buttonAdd = document.querySelector("#addTextFile");
+
+        buttonAdd.addEventListener("click", function () {
+            // put values em boxList
+            for (let i = 0; i < boxListCircle.length; i++) {
+                boxListCircle[i].dataset.propertiestext = `${fontDefault}/${fontSizeDefault}/${fontColorDefault}/${lineHeightDefault}/${alignmentDefault}`;
+                boxListCircleInput[i].value = textsInBox[i].innerHTML;
+            };
+
+            // back addFileImport and clean elements previwBox
+            addFileImport.style.display = "flex";
+            confirmFileImport.style.display = "none";
+
+            const insertElement = document.querySelector('#elements_previwBox');
+            insertElement.innerHTML = "";
+
+            // send to list box
+            const menu1 = document.querySelector("#content_drawCircleProperties");
+            const menu2 = document.querySelector("#content_importText");
+
+            menu2.style.display = "none";
+            menu1.style.display = "flex";
+        });
+    };
+
+    // auxiliaries
+    function propertiesImportTextToCanva(propertiesImport) {
+        const addFileImport = document.querySelector("#addFileImport");
+        const confirmFileImport = document.querySelector("#confirmFileImport");
+
+        if (propertiesImport.validAdd != undefined && propertiesImport.validAdd) {
+            addFileImport.style.display = "none";
+            confirmFileImport.style.display = "flex";
+
+            const handlebarsTemplate = `
+                <div class="indicator_text_import">
+                    <div class="indicatorTextPut">
+                        <div class="ellipseIndicator"></div>
+                        <h2>{{indexLine}}</h2>
+                    </div>
+                    <h2 class="contentLineTextImport">{{contentLine}}</h2>
+                </div>
+                <img src="{{moveIcon}}" alt="">
+            `;
+
+            const insertElement = document.querySelector('#elements_previwBox');
+            propertiesImport.linesWithValue.forEach((line, index) => {
+                const data = {
+                    indexLine: index + 1,
+                    contentLine: line,
+                    moveIcon: moveIcon
+                };
+
+                const compiledTemplate = Handlebars.compile(handlebarsTemplate);
+                const html = compiledTemplate(data);
+
+                const div = document.createElement('div');
+                div.draggable = true;
+                div.className = "boxTextAddImport";
+                div.innerHTML = html;
+
+                insertElement.appendChild(div);
+            });
+        };
+
+        addTextInBoxDrawCircle();
+    };
+
+    function eventDragChangePosition() {
+        const boxTextAddImport = document.querySelectorAll(".boxTextAddImport");
+        let elementDragOver;
+        let activeElement;
+
+        boxTextAddImport.forEach(element => {
+            element.addEventListener('dragstart', function (e) {
+                elementDragOver = element;
+            });
+            element.addEventListener('dragover', function (e) {
+                if (elementDragOver != element) {
+                    if (!activeElement) {
+                        const rect = element.getBoundingClientRect();
+                        const rect1 = elementDragOver.getBoundingClientRect();
+
+                        let offsetY1 = rect.y - rect1.y;
+                        let offsetY2 = rect1.y - rect.y;
+
+                        const parent = element.parentNode;
+                        if (offsetY1 > 0) {
+                            // change position element in DOM
+                            parent.insertBefore(element, elementDragOver);
+
+                            // rename text 
+                            let textElement1 = elementDragOver.querySelectorAll("h2")[0];
+                            let textElement2 = element.querySelectorAll("h2")[0];
+                            textElement1.innerHTML = parseInt(textElement1.innerHTML) + 1;
+                            textElement2.innerHTML = parseInt(textElement2.innerHTML) - 1;
+                        } else {
+                            // change position element in DOM
+                            parent.insertBefore(elementDragOver, element);
+
+                            // rename text 
+                            let textElement1 = elementDragOver.querySelectorAll("h2")[0];
+                            let textElement2 = element.querySelectorAll("h2")[0];
+                            textElement1.innerHTML = parseInt(textElement1.innerHTML) - 1;
+                            textElement2.innerHTML = parseInt(textElement2.innerHTML) + 1;
+                        };
+
+                        anime({
+                            targets: elementDragOver,
+                            translateY: [-offsetY1, 0],
+                            duration: 300,
+                            easing: 'easeOutExpo'
+                        });
+
+                        anime({
+                            targets: element,
+                            translateY: [-offsetY2, 0],
+                            duration: 300,
+                            easing: 'easeOutExpo',
+                            complete: function () {
+                                activeElement = false;
+                            }
+                        });
+
+                        activeElement = true;
+                    };
+
+                    elementDragOver = element;
+                };
+            });
+            element.addEventListener('dragend', function (e) {
+                activeElement = false;
+
+                // update textsInBox
+                textsInBox = document.querySelectorAll(".contentLineTextImport");
+
+                // active send canva after change element
+                sendCanvaInnerText();
+            });
+        });
+    };
+
+    function sendCanvaInnerText() {
+        const textsInBox = document.querySelectorAll(".contentLineTextImport");
+        const arrayTextsInBox = [];
+
+        textsInBox.forEach(element => {
+            arrayTextsInBox.push(element.innerHTML);
+        });
+
+        // clean text canva
+        let propertiesCleanCanva = {
+            validCleanText: true
+        };
+        canva(propertiesCleanCanva);
+
+        // send text canva
+        const propertiesInsertTxtByImport = [fontDefault, fontSizeDefault, fontColorDefault, lineHeightDefault, alignmentDefault, arrayTextsInBox];
+        let propertiesCanvaControl = {
+            validInsertTxtByImport: true,
+            propertiesInsertTxtByImport: propertiesInsertTxtByImport
+        };
+
+        canva(propertiesCanvaControl);
+    };
+};
+
 // auxiliaries
+function changeSubMenuProperties() {
+    const tabs = document.querySelectorAll("#drawCircleProperties .tabElement");
+    const menu1 = document.querySelector("#content_drawCircleProperties");
+    const menu2 = document.querySelector("#content_importText");
+
+    tabs.forEach((element, index) => {
+        element.addEventListener("click", function () {
+            const indexRemove = index == 0 ? 1 : 0;
+            tabs[indexRemove].id = "";
+            tabs[index].id = "selectTab";
+
+            const elementShow = index == 0 ? menu1 : menu2;
+            const elementHidden = index == 1 ? menu1 : menu2;
+
+            elementShow.style.display = "flex";
+            elementHidden.style.display = "none";
+        });
+    });
+};
+
 function customStyleSelect() {
     // custom style select by W3Schools
 
@@ -1385,6 +1696,34 @@ function customStyleSelect() {
     /*if the user clicks anywhere outside the select box,
     then close all select boxes:*/
     document.addEventListener("click", closeAllSelect);
+};  
+
+function boxErroAnimateShow(msg) {
+    const box = document.querySelector(".msgErro");
+    const boxTxt = document.querySelector(".msgErro h2");
+    box.style.display = "flex";
+    boxTxt.textContent = msg;
+
+    anime({
+        targets: box,
+        translateY: 48,
+        opacity: [0, 1],
+        duration: 600,
+        easing: 'easeOutExpo'
+    });
+
+    setTimeout(function () {
+        anime({
+            targets: box,
+            translateY: -48,
+            opacity: [1, 0],
+            duration: 600,
+            easing: 'easeOutExpo',
+            complete: function () {
+                box.style.display = "none";
+            }
+        });
+    }, 3000);
 };
 
 function removeBackgroundHidden(length1, length2) {
@@ -1422,6 +1761,8 @@ function focusInBoxInput() {
 
 document.addEventListener('DOMContentLoaded', function () {
     const buttonAddImages = document.querySelectorAll(".box_menuInitial")[0];
+    // initCanvaToTest();
+
     buttonAddImages.addEventListener("click", function () {
         // init canva
         let propertiesCanvaControl = {
@@ -1430,6 +1771,8 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         canva(propertiesCanvaControl);
+
+        // style fuction
         customStyleSelect();
 
         // remove box add and display canva
@@ -1447,5 +1790,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // add events auxiliaries
         focusInBoxInput();
+        changeSubMenuProperties();
+        importTextToCanva();
     });
 });
+
+// init by image local (debug) only test, no use
+function initCanvaToTest() {
+    // init canva
+    let propertiesCanvaControl = {
+        validInit: true,
+        validAddImageLocal: true,
+        pathImageTest: imageTest
+    };
+
+    canva(propertiesCanvaControl);
+    customStyleSelect();
+    importTextToCanva();
+
+    // remove box add and display canva
+    const menuInitial = document.querySelector("#menuInitial")
+    anime({
+        targets: menuInitial,
+        opacity: [1, 0],
+        duration: 150,
+        easing: 'easeOutExpo',
+        complete: function () {
+            menuInitial.style.display = "none";
+            document.querySelector("#canvasFile").style.display = "block";
+        }
+    });
+
+    // add events auxiliaries
+    focusInBoxInput();
+    changeSubMenuProperties();
+};
