@@ -31,7 +31,6 @@ function canva(propertiesCanvaControl) {
 
     function init() {
         const boxTool = document.querySelectorAll(".box_othersTools")[0];
-        const boxAddNewImage = document.querySelectorAll(".boxOptionsFile")[1];
 
         // mouse
         canvas.addEventListener('mousedown', mouseDown, false);
@@ -40,9 +39,6 @@ function canva(propertiesCanvaControl) {
 
         // click
         boxTool.addEventListener('click', putBoxByAi);
-        boxAddNewImage.addEventListener('click', function () {
-            document.getElementById('fileInputImage').click();
-        });
 
         // change
         document.getElementById('fileInputImage').addEventListener('change', addNewImage);
@@ -497,6 +493,72 @@ function canva(propertiesCanvaControl) {
         elementFile.href = dt;
     };
 
+    function saveFilesAll() {
+        if (filesContent.length > 0) {
+            // reset values 
+            ellipses = [];
+            square = [];
+            textInElement = [];
+
+            const namesImgs = [];
+            const imgs = [];
+
+            for (let i = 0; i < filesContent.length; i++) {
+                const propertiesFileSelect = filesContent[i];
+
+                imgLoad(propertiesFileSelect);
+
+                const base64 = canvas.toDataURL({
+                    format: 'png',
+                    quality: 1.0,
+                    multiplier: 1
+                });
+
+                namesImgs.push(filesContent[i].nameFile)
+                imgs.push(base64);
+            };
+
+            // back indexSelect 
+            console.log(indexSelectFile);
+            const propertiesFileSelect = filesContent[indexSelectFile];
+            imgLoad(propertiesFileSelect);
+
+            // download zip
+            const zip = new JSZip();
+            imgs.forEach((element, index) => {
+                zip.file(namesImgs[index], element.split(',')[1], { base64: true });
+            });
+
+            zip.generateAsync({ type: "blob" })
+                .then(function (blob) {
+                    // Salve o arquivo ZIP
+                    saveAs(blob, "images.zip");
+                });
+        };
+
+        function imgLoad(propertiesFileSelect) {
+            imageObj = new Image();
+            imageObj.onload = function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.width = imageObj.width;
+                canvas.height = imageObj.height;
+
+                ctx.drawImage(imageObj, 0, 0);
+
+                // reload circles, squares and txt
+                textInElement = propertiesFileSelect.textInElement;
+
+                // Redraw existing text
+                if (textInElement.length > 0) {
+                    textInElement.forEach(txt => {
+                        drawTextInElement(ctx, txt);
+                    });
+                };
+            };
+            imageObj.src = propertiesFileSelect.url;
+        };
+    }
+
     function addNewImage(e) {
         // save changes of indexSelectFile
         if (filesContent.length > 0) {
@@ -553,6 +615,7 @@ function canva(propertiesCanvaControl) {
                             ctx.drawImage(imageObj, 0, 0);
 
                             var properties = {
+                                nameFile: file.name,
                                 url: e.target.result,
                                 ellipses: [],
                                 square: [],
@@ -583,7 +646,6 @@ function canva(propertiesCanvaControl) {
         if (indexFile != indexSelectFile) {
             // save changes of indexSelectFile
             if (!ignoreChange) {
-                console.log("aas");
                 if (filesContent.length > 0) {
                     filesContent[indexSelectFile].properties = {
                         url: filesContent[indexSelectFile].url,
@@ -994,6 +1056,10 @@ function canva(propertiesCanvaControl) {
     else if (propertiesCanvaControl.validSaveFile != undefined && propertiesCanvaControl.validSaveFile) {
         saveFileOne(propertiesCanvaControl.elementFile);
     }
+    // save all files
+    else if (propertiesCanvaControl.validSaveAllFiles != undefined && propertiesCanvaControl.validSaveAllFiles) {
+        saveFilesAll();
+    }
     // selectFile
     else if (propertiesCanvaControl.validSelectFile != undefined && propertiesCanvaControl.validSelectFile) {
         selectFile(propertiesCanvaControl.index);
@@ -1377,6 +1443,24 @@ function controlPropertiesFile(propertiesFile) {
         });
     };
 };
+
+function optionsFiles() {
+    const boxAddNewImage = document.querySelectorAll(".boxOptionsFile")[1];
+    const boxSaveAllImage = document.querySelectorAll(".boxOptionsFile")[0];
+
+    boxAddNewImage.addEventListener('click', function () {
+        document.getElementById('fileInputImage').click();
+    });
+
+    boxSaveAllImage.addEventListener('click', function () {
+        console.log("ad");
+        // send canva save all images
+        let propertiesCanvaControl = {
+            validSaveAllFiles: true
+        };
+        canva(propertiesCanvaControl);
+    });
+}
 
 function importTextToCanva() {
     const fileInput = document.getElementById('fileInputImportText');
@@ -1801,6 +1885,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // add events auxiliaries
         focusInBoxInput();
+        optionsFiles();
         changeSubMenuProperties();
         importTextToCanva();
     });
