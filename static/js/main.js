@@ -1085,7 +1085,7 @@ let multiValuesSelect = [];
 // values default for fonts
 let fontDefault = "arial";
 let fontSizeDefault = "32";
-let fontColorDefault = "rgba(0, 0, 0)";
+let fontColorDefault = "00000";
 let lineHeightDefault = "1.5";
 let alignmentDefault = "0";
 
@@ -1107,8 +1107,17 @@ function drawCircleProperties(propertiesDrawCircleControl) {
         fetch(boxListCircle)
             .then(response => response.text())
             .then(template => {
+                const data = {
+                    font: fontDefault,
+                    fontSize: fontSizeDefault,
+                    colorFont: fontColorDefault,
+                    lineHeight: lineHeightDefault,
+                    alignment: alignmentDefault
+                };
+
                 const compiledTemplate = Handlebars.compile(template);
-                const renderedHtml = compiledTemplate();
+                const renderedHtml = compiledTemplate(data);
+
                 const insertElement = document.querySelector('#listCircle');
                 insertElement.insertAdjacentHTML('beforeend', renderedHtml);
 
@@ -1287,14 +1296,6 @@ function drawCircleProperties(propertiesDrawCircleControl) {
 
             input.addEventListener("focusout", function () {
                 getValuesAndSendCanva();
-
-
-                // save options for news text with values default
-                // fontDefault = font;
-                // fontSizeDefault = fon;
-                // fontColorDefault = "rgba(0, 0, 0)";
-                // lineHeightDefault = "1.5";
-                // alignmentDefault = "0";
             });
         });
 
@@ -1304,64 +1305,69 @@ function drawCircleProperties(propertiesDrawCircleControl) {
         });
 
         function getValuesAndSendCanva(e) {
-            if (e.target.value != "") {
-                // get index
-                const allBoxes = document.querySelectorAll(".boxListCircle");
-                const boxesArray = [...allBoxes];
-                const indexElementInBox = boxesArray.indexOf(lastElementBoxChange);
+            // get index
+            const allBoxes = document.querySelectorAll(".boxListCircle");
+            const boxesArray = [...allBoxes];
+            const indexElementInBox = boxesArray.indexOf(lastElementBoxChange);
 
-                // get dataset
-                let content = allBoxes[indexElementInBox].dataset.propertiestext;
-                const [font, fontSize, fontColor, lineHeight, alignment] = content.split('/');
+            // get dataset
+            let content = allBoxes[indexElementInBox].dataset.propertiestext;
+            const [font, fontSize, fontColor, lineHeight, alignment] = content.split('/');
 
-                // get input from lastElementBoxChange
-                const inputBox = lastElementBoxChange.querySelector("input");
+            // get input from lastElementBoxChange
+            const inputBox = lastElementBoxChange.querySelector("input");
 
-                // get values from column propertiesTextAndCircle
-                let [boxInputFontSize] = document.querySelectorAll("#rowFontText_propertiesTextAndCircle .boxInput input");
-                let [colorFont, lineHeightFont] = document.querySelectorAll("#styleText_propertiesTextAndCircle input");
-                let fontName = e.target.value;
-                console.log(fontName);
+            // get values from column propertiesTextAndCircle
+            let [boxInputFontSize] = document.querySelectorAll("#rowFontText_propertiesTextAndCircle .boxInput input");
+            let [colorFont, lineHeightFont] = document.querySelectorAll("#styleText_propertiesTextAndCircle input");
 
-                // if exist multiValuesSelect update all dataset of boxListCircle
-                if (multiValuesSelect.length > 0) {
-                    const inputsAllBox = document.querySelectorAll(".boxListCircle input");
+            let fontName = e ? e.target.value : font;
+            
+            // if exist multiValuesSelect update all dataset of boxListCircle
+            if (multiValuesSelect.length > 0) {
+                const inputsAllBox = document.querySelectorAll(".boxListCircle input");
 
-                    for (let i = multiValuesSelect[0]; i < multiValuesSelect[1]; i++) {
-                        // lebrar de pegar o font e alig
-                        allBoxes[i].dataset.propertiestext = `${fontName}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
+                for (let i = multiValuesSelect[0]; i < multiValuesSelect[1]; i++) {
+                    // lebrar de pegar o font e alig
+                    allBoxes[i].dataset.propertiestext = `${fontName}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
 
-                        // if exist inputs values in index element send canva
-                        if (inputsAllBox[i].value != "") {
-                            const propertiesInsertTxt = [fontName, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputsAllBox[i].value];
-
-                            let propertiesCanvaControl = {
-                                validInsertTxt: true,
-                                propertiesInsertTxt: propertiesInsertTxt,
-                                index: i
-                            };
-
-                            canva(propertiesCanvaControl);
-                        };
-                    };
-                } else {
-                    // if not update only lastElementBox
-                    lastElementBoxChange.dataset.propertiestext = `${fontName}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
-
-                    // if exist input value in lastElementBoxChange send canva
-                    if (inputBox.value != "") {
-                        const propertiesInsertTxt = [fontName, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputBox.value];
+                    // if exist inputs values in index element send canva
+                    if (inputsAllBox[i].value != "") {
+                        const propertiesInsertTxt = [fontName, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputsAllBox[i].value];
 
                         let propertiesCanvaControl = {
                             validInsertTxt: true,
                             propertiesInsertTxt: propertiesInsertTxt,
-                            index: indexElementInBox
+                            index: i
                         };
 
                         canva(propertiesCanvaControl);
                     };
                 };
+            } else {
+                // if not update only lastElementBox
+                lastElementBoxChange.dataset.propertiestext = `${fontName}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
+
+                // if exist input value in lastElementBoxChange send canva
+                if (inputBox.value != "") {
+                    const propertiesInsertTxt = [fontName, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputBox.value];
+
+                    let propertiesCanvaControl = {
+                        validInsertTxt: true,
+                        propertiesInsertTxt: propertiesInsertTxt,
+                        index: indexElementInBox
+                    };
+
+                    canva(propertiesCanvaControl);
+                };
             };
+
+            // save options for news text with values default
+            fontDefault = fontName;
+            fontSizeDefault = boxInputFontSize.value;
+            fontColorDefault = colorFont.value;
+            lineHeightDefault = lineHeightFont.value;
+            alignmentDefault = "0";
         };
     };
 };
@@ -1400,7 +1406,6 @@ function controlPropertiesFile(propertiesFile) {
 
         const compiledTemplate = Handlebars.compile(handlebarsTemplate);
 
-        // Crie um elemento DOM a partir do HTML gerado pelo modelo compilado
         const html = compiledTemplate(data);
         const element = document.createElement('div');
         element.className = "listFiles_boxFile no-select";
@@ -1493,7 +1498,6 @@ function optionsFiles() {
     });
 
     boxSaveAllImage.addEventListener('click', function () {
-        console.log("ad");
         // send canva save all images
         let propertiesCanvaControl = {
             validSaveAllFiles: true
@@ -1792,7 +1796,7 @@ function removeBackgroundHidden(length1, length2) {
 
 function focusInBoxInput() {
     const input = document.querySelectorAll("#column_propertiesTextAndCircle input");
-    
+
     input.forEach((element) => {
         element.addEventListener("focus", function () {
             const box = element.parentElement;
