@@ -118,29 +118,59 @@ canvas {
 }
 
 /*style the items (options), including the selected item:*/
-.select-items div,
 .select-selected {
     color: #6F6F6F;
-    padding: 8px 16px;
+    padding: 8px 10px 7px 8px;
     border-color: transparent transparent rgba(0, 0, 0, 0) transparent;
     cursor: pointer;
     user-select: none;
 }
 
+.divElementFont {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    padding: 10px 10px 9px 8px;
+    align-items: flex-start;
+    gap: 8px;
+    border-bottom: 1px solid #C1C1C1;
+    background: #EDEDED;
+}
+
+.divElementFont h2:first-child{
+    font-size: 10px !important;
+    flex: 1 0 0;
+    color: #6F6F6F;
+}
+
+.divElementFont h2:last-child{
+    width: 65px;
+    text-align: right;
+    font-size: 9px !important;
+    color: #1b1b1b;
+}
+
 .select-items div:last-child {
-    border-radius: 0px 0px 10px 10px;
+    border-radius: 0px 0px 5px 5px;
 }
 
 /*style items (options):*/
 .select-items {
     position: absolute;
+    height: 100px;
+    overflow-y: auto;
     background-color: #F2F2F2;
     border: 1px solid #C1C1C1;
-    border-radius: 0px 0px 10px 10px;
+    border-bottom: 0px;
+    border-radius: 0px 0px 5px 5px;
     top: 100%;
     left: -1px;
     right: -1px;
     z-index: 99;
+}
+
+.select-items::-webkit-scrollbar-track{
+    background: #EDEDED;
 }
 
 /*hide the items when the select box is closed:*/
@@ -825,7 +855,7 @@ canvas {
     background: #EDEDED;
 }
 
-#elements_previwBox{
+#elements_previwBox {
     display: flex;
     padding-right: 5px;
     gap: 8px;
@@ -858,7 +888,7 @@ canvas {
     gap: 10px;
 }
 
-.indicator_text_import h2{
+.indicator_text_import h2 {
     color: #6F6F6F;
     max-width: 160px;
 }

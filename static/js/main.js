@@ -562,7 +562,7 @@ function canva(propertiesCanvaControl) {
     function addNewImage(e) {
         // save changes of indexSelectFile
         if (filesContent.length > 0) {
-            filesContent[indexSelectFile].properties = {
+            filesContent[indexSelectFile] = {
                 url: filesContent[indexSelectFile].url,
                 ellipses: ellipses,
                 square: square,
@@ -647,7 +647,7 @@ function canva(propertiesCanvaControl) {
             // save changes of indexSelectFile
             if (!ignoreChange) {
                 if (filesContent.length > 0) {
-                    filesContent[indexSelectFile].properties = {
+                    filesContent[indexSelectFile] = {
                         url: filesContent[indexSelectFile].url,
                         ellipses: ellipses,
                         square: square,
@@ -692,12 +692,12 @@ function canva(propertiesCanvaControl) {
 
                 // Redraw existing ellipses
                 if (ellipses.length > 0) {
-                    ellipses.forEach(ellipse => {
+                    ellipses.forEach((ellipse) => {
                         drawEllipseRefText(ctx, ellipse);
 
                         // add in propertiesDraw
                         const propertiesDrawCircleControl = {
-                            validAddBox: true
+                            validAddBox: true,
                         };
                         drawCircleProperties(propertiesDrawCircleControl);
                     });
@@ -707,6 +707,14 @@ function canva(propertiesCanvaControl) {
                 if (textInElement.length > 0) {
                     textInElement.forEach(txt => {
                         drawTextInElement(ctx, txt);
+
+                        // add text by index in box of propertiesDraw
+                        const propertiesDrawCircleControl = {
+                            validAddTextInBox: true,
+                            indexTextInBox: txt.indexSquare,
+                            textInBox: txt.content
+                        };
+                        drawCircleProperties(propertiesDrawCircleControl);
                     });
                 };
 
@@ -1075,8 +1083,8 @@ let lastElementBoxChange;
 let multiValuesSelect = [];
 
 // values default for fonts
-let fontDefault = "ccwildwordsintregular";
-let fontSizeDefault = "18";
+let fontDefault = "arial";
+let fontSizeDefault = "32";
 let fontColorDefault = "rgba(0, 0, 0)";
 let lineHeightDefault = "1.5";
 let alignmentDefault = "0";
@@ -1084,6 +1092,8 @@ let alignmentDefault = "0";
 function drawCircleProperties(propertiesDrawCircleControl) {
     if (propertiesDrawCircleControl.validAddBox != undefined && propertiesDrawCircleControl.validAddBox) {
         addBoxInList();
+    } else if (propertiesDrawCircleControl.validAddTextInBox != undefined && propertiesDrawCircleControl.validAddTextInBox) {
+        addTextInBoxDrawCircle(propertiesDrawCircleControl.indexTextInBox, propertiesDrawCircleControl.textInBox);
     } else if (propertiesDrawCircleControl.selectBox != undefined && propertiesDrawCircleControl.selectBox) {
         selectBoxInListAndSendTab(propertiesDrawCircleControl.indexSelectBox);
     } else if (propertiesDrawCircleControl.pasteText != undefined && propertiesDrawCircleControl.pasteText) {
@@ -1132,6 +1142,15 @@ function drawCircleProperties(propertiesDrawCircleControl) {
                 addEventClickBoxCircle(lastBox);
                 addEventInputChangeBox(inputBox);
             });
+    };
+
+    function addTextInBoxDrawCircle(indexTextInBox, textValue) {
+        setTimeout(() => {
+            const inputBoxCircle = document.querySelectorAll(".boxListCircle input")[indexTextInBox];
+            console.log(inputBoxCircle);
+            console.log(textValue);
+            inputBoxCircle.value = textValue;
+        }, 50);
     };
 
     function removeBoxInList() {
@@ -1250,13 +1269,14 @@ function drawCircleProperties(propertiesDrawCircleControl) {
                 };
 
                 canva(propertiesCanvaControl);
-            }
+            };
         });
     };
 
     function addEventChangeOptions() {
         let allinputs = document.querySelectorAll("#column_propertiesTextAndCircle input");
 
+        // inputs
         allinputs.forEach(input => {
             // key enter
             input.addEventListener('keydown', function (event) {
@@ -1266,6 +1286,25 @@ function drawCircleProperties(propertiesDrawCircleControl) {
             });
 
             input.addEventListener("focusout", function () {
+                getValuesAndSendCanva();
+
+
+                // save options for news text with values default
+                // fontDefault = font;
+                // fontSizeDefault = fon;
+                // fontColorDefault = "rgba(0, 0, 0)";
+                // lineHeightDefault = "1.5";
+                // alignmentDefault = "0";
+            });
+        });
+
+        // font select
+        document.querySelectorAll('font-select').forEach((fontSelect) => {
+            fontSelect.addEventListener('change', getValuesAndSendCanva);
+        });
+
+        function getValuesAndSendCanva(e) {
+            if (e.target.value != "") {
                 // get index
                 const allBoxes = document.querySelectorAll(".boxListCircle");
                 const boxesArray = [...allBoxes];
@@ -1281,6 +1320,8 @@ function drawCircleProperties(propertiesDrawCircleControl) {
                 // get values from column propertiesTextAndCircle
                 let [boxInputFontSize] = document.querySelectorAll("#rowFontText_propertiesTextAndCircle .boxInput input");
                 let [colorFont, lineHeightFont] = document.querySelectorAll("#styleText_propertiesTextAndCircle input");
+                let fontName = e.target.value;
+                console.log(fontName);
 
                 // if exist multiValuesSelect update all dataset of boxListCircle
                 if (multiValuesSelect.length > 0) {
@@ -1288,11 +1329,11 @@ function drawCircleProperties(propertiesDrawCircleControl) {
 
                     for (let i = multiValuesSelect[0]; i < multiValuesSelect[1]; i++) {
                         // lebrar de pegar o font e alig
-                        allBoxes[i].dataset.propertiestext = `${font}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
+                        allBoxes[i].dataset.propertiestext = `${fontName}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
 
                         // if exist inputs values in index element send canva
                         if (inputsAllBox[i].value != "") {
-                            const propertiesInsertTxt = [font, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputsAllBox[i].value];
+                            const propertiesInsertTxt = [fontName, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputsAllBox[i].value];
 
                             let propertiesCanvaControl = {
                                 validInsertTxt: true,
@@ -1305,11 +1346,11 @@ function drawCircleProperties(propertiesDrawCircleControl) {
                     };
                 } else {
                     // if not update only lastElementBox
-                    lastElementBoxChange.dataset.propertiestext = `${font}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
+                    lastElementBoxChange.dataset.propertiestext = `${fontName}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
 
                     // if exist input value in lastElementBoxChange send canva
                     if (inputBox.value != "") {
-                        const propertiesInsertTxt = [font, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputBox.value];
+                        const propertiesInsertTxt = [fontName, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputBox.value];
 
                         let propertiesCanvaControl = {
                             validInsertTxt: true,
@@ -1320,9 +1361,8 @@ function drawCircleProperties(propertiesDrawCircleControl) {
                         canva(propertiesCanvaControl);
                     };
                 };
-
-            });
-        });
+            };
+        };
     };
 };
 
@@ -1707,92 +1747,6 @@ function changeSubMenuProperties() {
     });
 };
 
-function customStyleSelect() {
-    // custom style select by W3Schools
-
-    var x, i, j, l, ll, selElmnt, a, b, c;
-    /*look for any elements with the class "custom-select":*/
-    x = document.getElementsByClassName("custom-select");
-    l = x.length;
-
-    for (i = 0; i < l; i++) {
-        selElmnt = x[i].getElementsByTagName("select")[0];
-        ll = selElmnt.length;
-        /*for each element, create a new DIV that will act as the selected item:*/
-        a = document.createElement("DIV");
-        a.setAttribute("class", "select-selected");
-        a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
-        x[i].appendChild(a);
-        /*for each element, create a new DIV that will contain the option list:*/
-        b = document.createElement("DIV");
-        b.setAttribute("class", "select-items select-hide");
-        for (j = 1; j < ll; j++) {
-            /*for each option in the original select element,
-            create a new DIV that will act as an option item:*/
-            c = document.createElement("DIV");
-            c.innerHTML = selElmnt.options[j].innerHTML;
-            c.addEventListener("click", function (e) {
-                /*when an item is clicked, update the original select box,
-                and the selected item:*/
-                var y, i, k, s, h, sl, yl;
-                s = this.parentNode.parentNode.getElementsByTagName("select")[0];
-                sl = s.length;
-                h = this.parentNode.previousSibling;
-                for (i = 0; i < sl; i++) {
-                    if (s.options[i].innerHTML == this.innerHTML) {
-                        s.selectedIndex = i;
-                        h.innerHTML = this.innerHTML;
-                        y = this.parentNode.getElementsByClassName("same-as-selected");
-                        yl = y.length;
-                        for (k = 0; k < yl; k++) {
-                            y[k].removeAttribute("class");
-                        }
-                        this.setAttribute("class", "same-as-selected");
-                        break;
-                    }
-                }
-                h.click();
-            });
-            b.appendChild(c);
-        }
-        x[i].appendChild(b);
-        a.addEventListener("click", function (e) {
-            /*when the select box is clicked, close any other select boxes,
-            and open/close the current select box:*/
-            e.stopPropagation();
-            closeAllSelect(this);
-            this.nextSibling.classList.toggle("select-hide");
-            this.classList.toggle("select-arrow-active");
-        });
-    }
-
-    function closeAllSelect(elmnt) {
-        /*a function that will close all select boxes in the document,
-        except the current select box:*/
-        var x, y, i, xl, yl, arrNo = [];
-        x = document.getElementsByClassName("select-items");
-        y = document.getElementsByClassName("select-selected");
-        xl = x.length;
-        yl = y.length;
-        for (i = 0; i < yl; i++) {
-            if (elmnt == y[i]) {
-                arrNo.push(i)
-            } else {
-                y[i].classList.remove("select-arrow-active");
-            }
-        }
-        for (i = 0; i < xl; i++) {
-            if (arrNo.indexOf(i)) {
-                x[i].classList.add("select-hide");
-            }
-        }
-    }
-
-    /*if the user clicks anywhere outside the select box,
-    then close all select boxes:*/
-    document.addEventListener("click", closeAllSelect);
-};
-
 function boxErroAnimateShow(msg) {
     const box = document.querySelector(".msgErro");
     const boxTxt = document.querySelector(".msgErro h2");
@@ -1838,7 +1792,7 @@ function removeBackgroundHidden(length1, length2) {
 
 function focusInBoxInput() {
     const input = document.querySelectorAll("#column_propertiesTextAndCircle input");
-
+    
     input.forEach((element) => {
         element.addEventListener("focus", function () {
             const box = element.parentElement;
@@ -1866,9 +1820,6 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         canva(propertiesCanvaControl);
-
-        // style fuction
-        customStyleSelect();
 
         // remove box add and display canva
         const menuInitial = document.querySelector("#menuInitial")

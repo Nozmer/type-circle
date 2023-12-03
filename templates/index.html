@@ -15,7 +15,6 @@
         let deleteIcon = "{{ url_for('static', filename='img/icons/excluir.svg') }}";
     </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/font/stylesheet.css') }}">
     <!-- lib -->
     <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -85,13 +84,7 @@
                                         <div id="fontText_propertiesTextAndCircle">
                                             <h2>Propriedade de texto e caixa:</h2>
                                             <div id="rowFontText_propertiesTextAndCircle">
-                                                <div class="custom-select">
-                                                    <select>
-                                                        <option value="0">Arial</option>
-                                                        <option value="0">Arial</option>
-                                                        <option value="1">Times</option>
-                                                    </select>
-                                                </div>
+                                                <font-select id="font-select-1"></font-select>
                                                 <div class="boxInput">
                                                     <input type="text" placeholder="14">
                                                 </div>
@@ -228,6 +221,8 @@
         </div>
     </div>
 </body>
+
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/mjs/font-select.mjs') }}"></script>
 
 </html>
