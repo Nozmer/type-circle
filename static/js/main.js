@@ -18,6 +18,7 @@ var moveSquare = null;
 var moveText = null
 var existElement = null;
 var imageObj = null;
+var counterClickInit = 0;
 
 var scaleX, scaleY;
 
@@ -436,7 +437,7 @@ function canva(propertiesCanvaControl) {
                 .then(response => response.json())
                 .then(data =>
                     console.log(data)
-                    
+
                 )
                 .catch(error => console.error('Erro na solicitação:', error));
         }, 'image/jpeg', 0.9); // Ajuste a qualidade conforme necessário
@@ -510,59 +511,66 @@ function canva(propertiesCanvaControl) {
             const namesImgs = [];
             const imgs = [];
 
-            for (let i = 0; i < filesContent.length; i++) {
-                const propertiesFileSelect = filesContent[i];
+            function loadAndProcessImage(propertiesFileSelect) {
+                return new Promise((resolve, reject) => {
+                    const imageObj = new Image();
+                    imageObj.onload = function () {
+                        const tempCanvas = document.createElement("canvas");
+                        const tempCtx = tempCanvas.getContext("2d");
+                        tempCanvas.width = imageObj.width;
+                        tempCanvas.height = imageObj.height;
+                        tempCtx.drawImage(imageObj, 0, 0);
 
-                imgLoad(propertiesFileSelect);
 
-                const base64 = canvas.toDataURL({
-                    format: 'png',
-                    quality: 1.0,
-                    multiplier: 1
+                        // Redraw existing text
+                        textInElement = propertiesFileSelect.textInElement;
+                        if (textInElement.length > 0) {
+                            textInElement.forEach(txt => {
+                                drawTextInElement(tempCtx, txt);
+                            });
+                        };
+
+                        const base64 = tempCanvas.toDataURL({
+                            format: 'png',
+                            quality: 1.0,
+                            multiplier: 1
+                        });
+
+                        resolve(base64);
+                    };
+                    imageObj.onerror = function (error) {
+                        reject(error);
+                    };
+                    imageObj.src = propertiesFileSelect.url;
                 });
+            }
 
-                namesImgs.push(filesContent[i].nameFile)
-                imgs.push(base64);
-            };
+            // Processar todas as imagens
+            const promises = filesContent.map(propertiesFileSelect => loadAndProcessImage(propertiesFileSelect));
 
-            // back indexSelect 
-            console.log(indexSelectFile);
-            const propertiesFileSelect = filesContent[indexSelectFile];
-            imgLoad(propertiesFileSelect);
-
-            // download zip
-            const zip = new JSZip();
-            imgs.forEach((element, index) => {
-                zip.file(namesImgs[index], element.split(',')[1], { base64: true });
-            });
-
-            zip.generateAsync({ type: "blob" })
-                .then(function (blob) {
-                    // Salve o arquivo ZIP
-                    saveAs(blob, "images.zip");
-                });
-        };
-
-        function imgLoad(propertiesFileSelect) {
-            imageObj = new Image();
-            imageObj.onload = function () {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                canvas.width = imageObj.width;
-                canvas.height = imageObj.height;
-
-                ctx.drawImage(imageObj, 0, 0);
-
-                // reload circles, squares and txt
-                textInElement = propertiesFileSelect.textInElement;
-
-                // Redraw existing text
-                if (textInElement.length > 0) {
-                    textInElement.forEach(txt => {
-                        drawTextInElement(ctx, txt);
+            // Aguardar todas as promessas serem resolvidas
+            Promise.all(promises)
+                .then(result => {
+                    result.forEach((base64, index) => {
+                        namesImgs.push(filesContent[index].nameFile);
+                        imgs.push(base64);
                     });
-                };
-            };
-            imageObj.src = propertiesFileSelect.url;
+
+                    // Download do arquivo zip
+                    const zip = new JSZip();
+                    imgs.forEach((element, index) => {
+                        zip.file(namesImgs[index], element.split(',')[1], { base64: true });
+                    });
+
+                    zip.generateAsync({ type: "blob" })
+                        .then(function (blob) {
+                            // Salvar o arquivo ZIP
+                            saveAs(blob, "images.zip");
+                        });
+                })
+                .catch(error => {
+                    console.error("Erro ao processar imagens:", error);
+                });
         };
     }
 
@@ -570,6 +578,8 @@ function canva(propertiesCanvaControl) {
         // save changes of indexSelectFile
         if (filesContent.length > 0) {
             filesContent[indexSelectFile] = {
+                imageObj: filesContent[indexSelectFile].imageObj,
+                nameFile: filesContent[indexSelectFile].nameFile,
                 url: filesContent[indexSelectFile].url,
                 ellipses: ellipses,
                 square: square,
@@ -592,61 +602,114 @@ function canva(propertiesCanvaControl) {
         };
 
         var files = e.target.files;
-        if (files) {
-            // remove backgroud hidden and animate
-            const backgroud = document.querySelectorAll(".hiddenBackgroud")[0];
-            if (backgroud.style.background != "transparent") {
-                removeBackgroundHidden(0, 0);
-                removeBackgroundHidden(1, 1);
-                removeBackgroundHidden(2, 2);
-            };
+
+        function loadImage(file) {
+            return new Promise((resolve, reject) => {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const imageObj = new Image();
+                    imageObj.onload = function () {
+                        // properties
+                        const properties = {
+                            imageObj: imageObj,
+                            nameFile: file.name,
+                            url: e.target.result,
+                            ellipses: [],
+                            square: [],
+                            textInElement: []
+                        };
+                        resolve(properties);
+                    };
+                    imageObj.onerror = function (error) {
+                        reject(error);
+                    };
+                    imageObj.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function loadImages(files) {
+            const promises = [];
 
             for (let i = 0; i < files.length; i++) {
-                let file = files[i];
+                const file = files[i];
 
                 if (file.type.startsWith("image/")) {
-                    var reader = new FileReader();
+                    promises.push(loadImage(file));
+                }
+            };
 
-                    reader.onload = function (e) {
-                        imageObj = new Image();
-                        imageObj.onload = function () {
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                            canvas.width = imageObj.width;
-                            canvas.height = imageObj.height;
+            return Promise.all(promises);
+        }
 
-                            canvas.style.height = innerHeight + "px";
+        if (files) {
+            // remove box add and display canva
+            const menuInitial = document.querySelector("#menuInitial");
+            if (menuInitial.opacity = "1") {
+                anime({
+                    targets: menuInitial,
+                    opacity: [1, 0],
+                    duration: 300,
+                    easing: 'easeOutExpo',
+                    complete: function () {
+                        menuInitial.style.display = "none";
+                        document.querySelector("#canvasFile").style.display = "block";
+                    }
+                });
 
-                            scaleX = canvas.width / canvas.offsetWidth;
-                            scaleY = canvas.height / canvas.offsetHeight;
+                // remove backgroud hidden and animate
+                const backgroud = document.querySelectorAll(".hiddenBackgroud")[0];
+                if (backgroud.style.background != "transparent") {
+                    removeBackgroundHidden(0, 0);
+                    removeBackgroundHidden(1, 1);
+                    removeBackgroundHidden(2, 2);
+                };
+            };
 
-                            ctx.drawImage(imageObj, 0, 0);
+            // loadImages
+            loadImages(files)
+                .then(imagesProperties => {
+                    imagesProperties.forEach(properties => {
+                        filesContent.push(properties);
 
-                            var properties = {
-                                nameFile: file.name,
-                                url: e.target.result,
-                                ellipses: [],
-                                square: [],
-                                textInElement: []
-                            };
+                        indexSelectFile = filesContent.length - 1;
 
-                            filesContent.push(properties);
-                            indexSelectFile = filesContent.length - 1;
-                        };
-                        imageObj.src = e.target.result;
-
+                        // controlPropertiesFile
                         var propertiesFile = {
                             validAddFile: true,
-                            urlFile: e.target.result,
-                            nameFile: file.name
+                            urlFile: properties.url,
+                            nameFile: properties.nameFile
                         };
 
                         controlPropertiesFile(propertiesFile);
-                    };
+                    });
 
-                    reader.readAsDataURL(file);
-                };
-            };
-        };
+                    // show last imageObj in canva
+                    const indexLast = imagesProperties.length - 1;
+                    const imageObj_Last = imagesProperties[indexLast].imageObj;
+
+                    setTimeout(() => {
+                        canvas.width = imageObj_Last.width;
+                        canvas.height = imageObj_Last.height;
+                        canvas.style.height = innerHeight + "px";
+
+                        scaleX = canvas.width / canvas.offsetWidth;
+                        scaleY = canvas.height / canvas.offsetHeight;
+
+                        ctx.drawImage(imageObj_Last, 0, 0);
+
+                        imageObj = imageObj_Last;
+                        indexSelectFile = indexLast;
+                    }, 300);
+
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar imagens:", error);
+                });
+        }
     };
 
     function selectFile(indexFile, ignoreChange) {
@@ -655,6 +718,8 @@ function canva(propertiesCanvaControl) {
             if (!ignoreChange) {
                 if (filesContent.length > 0) {
                     filesContent[indexSelectFile] = {
+                        imageObj: filesContent[indexSelectFile].imageObj,
+                        nameFile: filesContent[indexSelectFile].nameFile,
                         url: filesContent[indexSelectFile].url,
                         ellipses: ellipses,
                         square: square,
@@ -842,10 +907,11 @@ function canva(propertiesCanvaControl) {
         lines.push(line.trim()); // Adicione a última linha à matriz de linhas
 
         // Calcule a altura total do texto
-        var totalHeight = lines.length * lineHeight;
+        var totalHeight = (lines.length - 1) * lineHeight;
 
         // Calcule a posição Y inicial para que o texto fique centralizado verticalmente
         var startY = currentText.centerYText - totalHeight / 4;
+        console.log(startY);
 
         // Desenhe cada linha com a posição Y ajustada
         for (var j = 0; j < lines.length; j++) {
@@ -1019,20 +1085,15 @@ function canva(propertiesCanvaControl) {
 
     // init
     if (propertiesCanvaControl.validInit != undefined && propertiesCanvaControl.validInit) {
-        init();
-
-        // remove box add and display canva
-        const menuInitial = document.querySelector("#menuInitial")
-        anime({
-            targets: menuInitial,
-            opacity: [1, 0],
-            duration: 150,
-            easing: 'easeOutExpo',
-            complete: function () {
-                menuInitial.style.display = "none";
-                document.querySelector("#canvasFile").style.display = "block";
-            }
-        });
+        counterClickInit++
+        if (counterClickInit <= 1) {
+            init();
+            // active events auxiliaries
+            focusInBoxInput();
+            optionsFiles();
+            changeSubMenuProperties();
+            importTextToCanva();
+        };
 
         if (propertiesCanvaControl.validAddImage) {
             document.getElementById('fileInputImage').click();
@@ -1193,8 +1254,6 @@ function drawCircleProperties(propertiesDrawCircleControl) {
     function addTextInBoxDrawCircle(indexTextInBox, textValue) {
         setTimeout(() => {
             const inputBoxCircle = document.querySelectorAll(".boxListCircle input")[indexTextInBox];
-            console.log(inputBoxCircle);
-            console.log(textValue);
             inputBoxCircle.value = textValue;
         }, 50);
     };
@@ -1882,12 +1941,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         canva(propertiesCanvaControl);
     });
-
-    // active events auxiliaries
-    focusInBoxInput();
-    optionsFiles();
-    changeSubMenuProperties();
-    importTextToCanva();
 });
 
 // init by image local (debug) only test, no use
