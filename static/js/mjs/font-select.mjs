@@ -169,6 +169,7 @@ template.innerHTML = `
     }
 
     input {
+      cursor: pointer;
       width: 100%;
       font-family: Poppins;
       line-height: 1.3;
@@ -230,7 +231,7 @@ template.innerHTML = `
       appearance: none;
       width: 0.5em;
       height: 0.5em;
-      background-image: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 10 10%22><text text-anchor=%22middle%22 fill=%22GrayText%22 x=%225%22 y=%220.5em%22 font-size=%221em%22>⨯</text></svg>");
+      background-image: url("static/img/icons/excluir.svg");
       background-size: 0.75em;
       background-position: center;
     }
@@ -276,11 +277,13 @@ template.innerHTML = `
       <input
         part="font-family-input"
         id="family"
+        placeholder="Arial"
         type="search"
         role="combobox"
         aria-autocomplete="list"
         aria-expanded="false"
         aria-controls="autocomplete"
+        spellcheck="false"
       >
       <button
         tabindex="-1"

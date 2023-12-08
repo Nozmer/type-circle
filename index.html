@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>typeCircle</title>
     <script>
-        let imageTest = "{{ url_for('static', filename='img/test/03.png') }}";
-        let boxListCircle = "{{ url_for('static', filename='js/template/boxListCircle.handlebars') }}";
-        let boxOptionsFile = "{{ url_for('static', filename='js/template/boxOptionsFile.handlebars') }}";
+        let imageTest = "static/img/test/03.png";
+        let boxListCircle = "static/js/template/boxListCircle.handlebars";
+        let boxOptionsFile = "static/js/template/boxOptionsFile.handlebars";
         // icon
-        let downloadIcon = "{{ url_for('static', filename='img/icons/baixar.svg') }}";
-        let moveIcon = "{{ url_for('static', filename='img/icons/points.svg') }}";
-        let deleteIcon = "{{ url_for('static', filename='img/icons/excluir.svg') }}";
+        let downloadIcon = "static/img/icons/baixar.svg";
+        let moveIcon = "static/img/icons/points.svg";
+        let deleteIcon = "static/img/icons/excluir.svg";
     </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="/static/css/style.css">
     <!-- lib -->
     <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
@@ -24,7 +24,7 @@
 
 <body>
     <div class="msgErro no-select">
-        <img src="{{ url_for('static', filename='img/icons/msgErro.svg') }}" alt="">
+        <img src="static/img/icons/msgErro.svg" alt="">
         <h2></h2>
     </div>
 
@@ -86,19 +86,19 @@
                                             <div id="rowFontText_propertiesTextAndCircle">
                                                 <font-select id="font-select-1"></font-select>
                                                 <div class="boxInput">
-                                                    <input type="text" placeholder="14">
+                                                    <input type="number" placeholder="0">
                                                 </div>
                                             </div>
                                         </div>
                                         <div id="styleText_propertiesTextAndCircle">
                                             <div class="boxRowProperties">
                                                 <div id="selectorColor"></div>
-                                                <input id="input_selectorColor" type="text" placeholder="#00000">
+                                                <input id="input_selectorColor" maxlength="6" type="text" placeholder="#00000">
                                             </div>
                                             <div class="boxRowProperties">
-                                                <img src="{{ url_for('static', filename='img/icons/lineHeight.svg') }}"
+                                                <img src="static/img/icons/lineHeight.svg"
                                                     alt="">
-                                                <input id="input_lineHeight" type="text" placeholder="Auto">
+                                                <input id="input_lineHeight" maxlength="3" type="number" placeholder="Auto">
                                             </div>
                                             <!-- <div class="boxRowProperties">
                                         <img src="assets/img/icons/round-corner.svg" alt="">
@@ -106,16 +106,16 @@
                                     </div> -->
                                         </div>
                                         <div id="styleTextAling_propertiesTextAndCircle">
+                                            <div class="boxIconProperties">
+                                                <img src="static/img/icons/alingLeft.svg"
+                                                    alt="">
+                                            </div>
                                             <div id="selectIconBox" class="boxIconProperties">
-                                                <img src="{{ url_for('static', filename='img/icons/alingCenter.svg') }}"
+                                                <img src="static/img/icons/alingCenter.svg"
                                                     alt="">
                                             </div>
                                             <div class="boxIconProperties">
-                                                <img src="{{ url_for('static', filename='img/icons/alingLeft.svg') }}"
-                                                    alt="">
-                                            </div>
-                                            <div class="boxIconProperties">
-                                                <img src="{{ url_for('static', filename='img/icons/alingRight.svg') }}"
+                                                <img src="static/img/icons/alingRight.svg"
                                                     alt="">
                                             </div>
                                         </div>
@@ -128,7 +128,7 @@
                                         <h2>Adicionar arquivo de texto</h2>
                                         <input type="file" id="fileInputImportText" accept=".txt" style="display:none;">
                                         <div class="columnBoxExtensionIcon">
-                                            <img src="{{ url_for('static', filename='img/icons/extensionFile.svg') }}"
+                                            <img src="static/img/icons/extensionFile.svg"
                                                 alt="">
                                             <div class="boxExtensionIcon">
                                                 <h2>.txt</h2>
@@ -156,7 +156,7 @@
                                     <div id="topConfirmFileImport">
                                         <div id="name_BackFile">
                                             <div id="buttonBack">
-                                                <img src="{{ url_for('static', filename='img/icons/seta.svg') }}"
+                                                <img src="static/img/icons/seta.svg"
                                                     alt="">
                                             </div>
                                             <div id="nameFileImport">
@@ -180,10 +180,10 @@
                                 <h2>Outras ferramentas:</h2>
                                 <div class="box_othersTools">
                                     <h2>Indentificar caixas usando AI</h2>
-                                    <img class="loadgif" src="{{ url_for('static', filename='img/icons/load.gif') }}"
+                                    <img class="loadgif" src="static/img/icons/load.gif"
                                         alt="">
                                     <img class="finishTask"
-                                        src="{{ url_for('static', filename='img/icons/right.svg') }}" alt="">
+                                        src="static/img/icons/right.svg" alt="">
                                 </div>
                             </div>
                         </div>
@@ -206,12 +206,12 @@
                             <div class="optionsFile no-select">
                                 <div class="boxOptionsFile">
                                     <h2>Salvar todos</h2>
-                                    <img src="{{ url_for('static', filename='img/icons/salva.svg') }}" alt="">
+                                    <img src="static/img/icons/salva.svg" alt="">
                                 </div>
                                 <div class="boxOptionsFile">
                                     <h2>Adicionar images</h2>
                                     <input type="file" id="fileInputImage" style="display:none;" accept=".jpg,.png" multiple>
-                                    <img src="{{ url_for('static', filename='img/icons/addimage.svg') }}" alt="">
+                                    <img src="static/img/icons/addimage.svg" alt="">
                                 </div>
                             </div>
                         </div>
@@ -222,7 +222,7 @@
     </div>
 </body>
 
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
-<script type="module" src="{{ url_for('static', filename='js/mjs/font-select.mjs') }}"></script>
+<script src="static/js/main.js"></script>
+<script type="module" src="static/js/mjs/font-select.mjs"></script>
 
 </html>

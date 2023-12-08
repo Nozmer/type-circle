@@ -406,7 +406,7 @@ function canva(propertiesCanvaControl) {
                 existElement = null;
             };
         };
-        if (e.ctrlKey && e.key === "v" && existElement) {
+        if (e.ctrlKey && e.key === "Alt" && e.key === "v" && existElement) {
             const index = square.indexOf(existElement);
             // send drawCircleProperties to paste text
             const propertiesDrawCircleControl = {
@@ -423,59 +423,66 @@ function canva(propertiesCanvaControl) {
         const finish = document.querySelectorAll(".finishTask")[0];
         load.style.display = "block";
 
-        var info = { image: filesContent[indexSelectFile].url };
+        canvas.toBlob(blob => {
+            // Criar um formulário e anexar o blob como 'image'
+            const formData = new FormData();
+            formData.append('image', blob, 'image.jpg');
 
-        // Configuração da solicitação POST
-        var requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(info)
-        };
+            // Enviar a solicitação POST com o formData
+            fetch('http://localhost:3000/requestYolov4', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data =>
+                    console.log(data)
+                    
+                )
+                .catch(error => console.error('Erro na solicitação:', error));
+        }, 'image/jpeg', 0.9); // Ajuste a qualidade conforme necessário
 
         // Envie a solicitação para o servidor
-        fetch('/get_positions_box', requestOptions)
-            .then(response => response.json())
-            .then(data => {
-                let positions = data.positions
+        // fetch('/get_positions_box', requestOptions)
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         let positions = data.positions
 
-                positions.forEach(position => {
-                    currentEllipse = {
-                        centerX: position[0] + position[2] / 2,
-                        centerY: position[1] + position[3] / 2,
-                        radiusX: position[2] / 2,
-                        radiusY: position[3] / 2,
-                        rotation: 0
-                    };
+        //         positions.forEach(position => {
+        //             currentEllipse = {
+        //                 centerX: position[0] + position[2] / 2,
+        //                 centerY: position[1] + position[3] / 2,
+        //                 radiusX: position[2] / 2,
+        //                 radiusY: position[3] / 2,
+        //                 rotation: 0
+        //             };
 
-                    currentSquare = {
-                        squareX: position[0],
-                        squareY: position[1],
-                        radiusX: position[2],
-                        radiusY: position[3],
-                        rotation: 0
-                    };
+        //             currentSquare = {
+        //                 squareX: position[0],
+        //                 squareY: position[1],
+        //                 radiusX: position[2],
+        //                 radiusY: position[3],
+        //                 rotation: 0
+        //             };
 
-                    ellipses.push(currentEllipse);
-                    square.push(currentSquare);
+        //             ellipses.push(currentEllipse);
+        //             square.push(currentSquare);
 
-                    // add in propertiesDraw
-                    const propertiesDrawCircleControl = {
-                        validAddBox: true
-                    };
-                    drawCircleProperties(propertiesDrawCircleControl);
-                    load.style.display = "none";
-                    finish.style.display = "block";
-                    setTimeout(function () {
-                        finish.style.display = "none";
-                    }, 2000);
-                });
+        //             // add in propertiesDraw
+        //             const propertiesDrawCircleControl = {
+        //                 validAddBox: true
+        //             };
+        //             drawCircleProperties(propertiesDrawCircleControl);
+        //             load.style.display = "none";
+        //             finish.style.display = "block";
+        //             setTimeout(function () {
+        //                 finish.style.display = "none";
+        //             }, 2000);
+        //         });
 
-                ellipses.forEach(ellipse => {
-                    drawEllipseRefText(ctx, ellipse);
-                });
-            });
+        //         ellipses.forEach(ellipse => {
+        //             drawEllipseRefText(ctx, ellipse);
+        //         });
+        //     });
     };
 
     function saveFileOne(elementFile) {
@@ -816,7 +823,7 @@ function canva(propertiesCanvaControl) {
         var lines = [];
 
         ctx.font = currentText.font;
-        ctx.fillStyle = "rgba(0, 0, 0)";
+        ctx.fillStyle = hexToRgb(currentText.fillStyle);
         ctx.textAlign = currentText.textAlign;
         ctx.textBaseline = currentText.textBaseline;
 
@@ -898,6 +905,7 @@ function canva(propertiesCanvaControl) {
 
     function addTextInEllpseSelect(indexElement, propertiesInsertTxt) {
         const squareInsert = square[indexElement];
+        const alignments = ["right", "center", "left"]
 
         // Calcula as coordenadas do centro do retângulo
         const centerXText = squareInsert.squareX + squareInsert.radiusX / 2;
@@ -912,7 +920,7 @@ function canva(propertiesCanvaControl) {
                 element.content = propertiesInsertTxt[5];
                 element.font = `${propertiesInsertTxt[1]}px ${propertiesInsertTxt[0]}`;
                 element.fillStyle = propertiesInsertTxt[2];
-                element.textAlign = 'center';
+                element.textAlign = alignments[propertiesInsertTxt[4]];
                 element.textBaseline = 'middle';
                 element.lineHeight = propertiesInsertTxt[3];
                 element.maxWidth = squareInsert.radiusX;
@@ -950,7 +958,7 @@ function canva(propertiesCanvaControl) {
                 content: propertiesInsertTxt[5],
                 font: `${propertiesInsertTxt[1]}px ${propertiesInsertTxt[0]}`,
                 fillStyle: propertiesInsertTxt[2],
-                textAlign: 'center',
+                textAlign: alignments[propertiesInsertTxt[4]],
                 textBaseline: 'middle',
                 lineHeight: propertiesInsertTxt[3],
                 maxWidth: squareInsert.radiusX,
@@ -963,6 +971,22 @@ function canva(propertiesCanvaControl) {
 
             textInElement.push(textNew);
         };
+    };
+
+    function hexToRgb(hex) {
+        // Remove o "#" se estiver presente
+        hex = hex.replace(/^#/, '');
+
+        // Divide a string em pares de caracteres
+        let bigint = parseInt(hex, 16);
+
+        // Extrai os componentes RGB
+        let r = (bigint >> 16) & 255;
+        let g = (bigint >> 8) & 255;
+        let b = bigint & 255;
+
+        // Retorna o resultado como um objeto
+        return `rgba(${r}, ${g}, ${b})`;
     };
 
     function isPointInsideRectangle(x, y, rectX, rectY, rectWidth, rectHeight) {
@@ -996,6 +1020,19 @@ function canva(propertiesCanvaControl) {
     // init
     if (propertiesCanvaControl.validInit != undefined && propertiesCanvaControl.validInit) {
         init();
+
+        // remove box add and display canva
+        const menuInitial = document.querySelector("#menuInitial")
+        anime({
+            targets: menuInitial,
+            opacity: [1, 0],
+            duration: 150,
+            easing: 'easeOutExpo',
+            complete: function () {
+                menuInitial.style.display = "none";
+                document.querySelector("#canvasFile").style.display = "block";
+            }
+        });
 
         if (propertiesCanvaControl.validAddImage) {
             document.getElementById('fileInputImage').click();
@@ -1087,7 +1124,7 @@ let fontDefault = "arial";
 let fontSizeDefault = "32";
 let fontColorDefault = "00000";
 let lineHeightDefault = "1.5";
-let alignmentDefault = "0";
+let alignmentDefault = "1";
 
 function drawCircleProperties(propertiesDrawCircleControl) {
     if (propertiesDrawCircleControl.validAddBox != undefined && propertiesDrawCircleControl.validAddBox) {
@@ -1284,6 +1321,7 @@ function drawCircleProperties(propertiesDrawCircleControl) {
 
     function addEventChangeOptions() {
         let allinputs = document.querySelectorAll("#column_propertiesTextAndCircle input");
+        let alignment = document.querySelectorAll(".boxIconProperties");
 
         // inputs
         allinputs.forEach(input => {
@@ -1304,6 +1342,19 @@ function drawCircleProperties(propertiesDrawCircleControl) {
             fontSelect.addEventListener('change', getValuesAndSendCanva);
         });
 
+        // select alignment
+        alignment.forEach(box => {
+            box.addEventListener('click', function () {
+                // remove select all
+                alignment.forEach(element => {
+                    element.id = ""
+                });
+
+                box.id = "selectIconBox";
+                getValuesAndSendCanva();
+            });
+        });
+
         function getValuesAndSendCanva(e) {
             // get index
             const allBoxes = document.querySelectorAll(".boxListCircle");
@@ -1312,7 +1363,7 @@ function drawCircleProperties(propertiesDrawCircleControl) {
 
             // get dataset
             let content = allBoxes[indexElementInBox].dataset.propertiestext;
-            const [font, fontSize, fontColor, lineHeight, alignment] = content.split('/');
+            const [font, fontSize, fontColor, lineHeight] = content.split('/');
 
             // get input from lastElementBoxChange
             const inputBox = lastElementBoxChange.querySelector("input");
@@ -1321,19 +1372,26 @@ function drawCircleProperties(propertiesDrawCircleControl) {
             let [boxInputFontSize] = document.querySelectorAll("#rowFontText_propertiesTextAndCircle .boxInput input");
             let [colorFont, lineHeightFont] = document.querySelectorAll("#styleText_propertiesTextAndCircle input");
 
+            // get alignment index
+            let alignmentIndex;
+            alignment.forEach((element, index) => {
+                if (element.id === "selectIconBox") {
+                    alignmentIndex = index;
+                }
+            });
+
             let fontName = e ? e.target.value : font;
-            
+
             // if exist multiValuesSelect update all dataset of boxListCircle
             if (multiValuesSelect.length > 0) {
                 const inputsAllBox = document.querySelectorAll(".boxListCircle input");
 
                 for (let i = multiValuesSelect[0]; i < multiValuesSelect[1]; i++) {
-                    // lebrar de pegar o font e alig
-                    allBoxes[i].dataset.propertiestext = `${fontName}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
+                    allBoxes[i].dataset.propertiestext = `${fontName}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignmentIndex}`;
 
                     // if exist inputs values in index element send canva
                     if (inputsAllBox[i].value != "") {
-                        const propertiesInsertTxt = [fontName, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputsAllBox[i].value];
+                        const propertiesInsertTxt = [fontName, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignmentIndex, inputsAllBox[i].value];
 
                         let propertiesCanvaControl = {
                             validInsertTxt: true,
@@ -1346,11 +1404,11 @@ function drawCircleProperties(propertiesDrawCircleControl) {
                 };
             } else {
                 // if not update only lastElementBox
-                lastElementBoxChange.dataset.propertiestext = `${fontName}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignment}`;
+                lastElementBoxChange.dataset.propertiestext = `${fontName}/${boxInputFontSize.value}/${colorFont.value}/${lineHeightFont.value}/${alignmentIndex}`;
 
                 // if exist input value in lastElementBoxChange send canva
                 if (inputBox.value != "") {
-                    const propertiesInsertTxt = [fontName, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignment, inputBox.value];
+                    const propertiesInsertTxt = [fontName, boxInputFontSize.value, colorFont.value, lineHeightFont.value, alignmentIndex, inputBox.value];
 
                     let propertiesCanvaControl = {
                         validInsertTxt: true,
@@ -1367,7 +1425,7 @@ function drawCircleProperties(propertiesDrawCircleControl) {
             fontSizeDefault = boxInputFontSize.value;
             fontColorDefault = colorFont.value;
             lineHeightDefault = lineHeightFont.value;
-            alignmentDefault = "0";
+            alignmentDefault = alignmentIndex;
         };
     };
 };
@@ -1814,7 +1872,6 @@ function focusInBoxInput() {
 
 document.addEventListener('DOMContentLoaded', function () {
     const buttonAddImages = document.querySelectorAll(".box_menuInitial")[0];
-    // initCanvaToTest();
 
     buttonAddImages.addEventListener("click", function () {
         // init canva
@@ -1824,26 +1881,13 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         canva(propertiesCanvaControl);
-
-        // remove box add and display canva
-        const menuInitial = document.querySelector("#menuInitial")
-        anime({
-            targets: menuInitial,
-            opacity: [1, 0],
-            duration: 150,
-            easing: 'easeOutExpo',
-            complete: function () {
-                menuInitial.style.display = "none";
-                document.querySelector("#canvasFile").style.display = "block";
-            }
-        });
-
-        // add events auxiliaries
-        focusInBoxInput();
-        optionsFiles();
-        changeSubMenuProperties();
-        importTextToCanva();
     });
+
+    // active events auxiliaries
+    focusInBoxInput();
+    optionsFiles();
+    changeSubMenuProperties();
+    importTextToCanva();
 });
 
 // init by image local (debug) only test, no use
@@ -1856,8 +1900,6 @@ function initCanvaToTest() {
     };
 
     canva(propertiesCanvaControl);
-    customStyleSelect();
-    importTextToCanva();
 
     // remove box add and display canva
     const menuInitial = document.querySelector("#menuInitial")
@@ -1871,8 +1913,4 @@ function initCanvaToTest() {
             document.querySelector("#canvasFile").style.display = "block";
         }
     });
-
-    // add events auxiliaries
-    focusInBoxInput();
-    changeSubMenuProperties();
 };
